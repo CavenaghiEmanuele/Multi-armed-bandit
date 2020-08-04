@@ -1,11 +1,10 @@
 import numpy as np
-
-from . import MultiArmedBandit
-
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 from numpy.random import uniform, normal
 from typing import List
+
+from . import MultiArmedBandit
 
 
 class GaussianBandit(MultiArmedBandit):
