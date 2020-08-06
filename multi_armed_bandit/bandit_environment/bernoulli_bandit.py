@@ -1,7 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy, scipy.stats
-from scipy.stats import bernoulli
 from numpy.random import uniform, binomial
 from typing import List
 
@@ -31,11 +29,8 @@ class BernoulliBandit(MultiArmedBandit):
             "Probabilities = " + str(self._probabilities)
     
     def plot_arms(self):
-        
         for a in range(self._n_arms):
-            x = scipy.linspace(0,1)
-            pmf = scipy.stats.binom.pmf(x, 1, self._probabilities[a])
-            plt.plot(x, pmf, label="prob: " + str(self._probabilities[a]))
+            plt.bar(a, self._probabilities[a], label="Action: " + str(a) + ", prob: " + str(self._probabilities[a]))
 
         plt.legend()
         plt.show()
