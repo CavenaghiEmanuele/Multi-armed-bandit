@@ -45,7 +45,7 @@ class GaussianBandit(MultiArmedBandit):
             x = np.linspace(self._mean[a] - 3*self._std_dev[a], self._mean[a] + 3*self._std_dev[a])
             plt.plot(x, 
                      stats.norm.pdf(x, self._mean[a], self._std_dev[a]), 
-                     label="Mean: " + str(self._mean[a]) + ", std_dev: " + str(self._std_dev[a]))
+                     label="Action: " + str(a) + ", Mean: " + str(self._mean[a]) + ", std_dev: " + str(self._std_dev[a]))
 
         plt.legend()
         plt.show()
