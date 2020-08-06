@@ -34,6 +34,8 @@ class GaussianBandit(MultiArmedBandit):
         elif std_dev != None and n_arms != len(std_dev):
             raise Exception(
                 "Length of standard deviation vector must be the same of number of arms")
+        
+        self._best_action_mean = np.max(self._mean)
 
     def __repr__(self):
         return "Gaussian Multi-armed bandit\n" + \
@@ -50,9 +52,11 @@ class GaussianBandit(MultiArmedBandit):
         plt.legend()
         plt.show()
                     
-    def select_action(self, action: int):
+    def do_action(self, action: int):
         return normal(loc=self._mean[action], scale=self._std_dev[action])
     
-    def select_best_action(self):
-        best_action = np.argmax(self._mean)
-        return self.select_action(best_action)
+    def best_action_mean(self):
+        return self._best_action_mean
+    
+    def action_mean(self, action: int):
+        return self._mean[action]

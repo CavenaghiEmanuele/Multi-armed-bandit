@@ -10,6 +10,7 @@ class BernoulliBandit(MultiArmedBandit):
 
     _n_arms: int
     _probabilities: float
+    _best_action_mean: float
     
     def __init__(self, n_arms: int, probabilities: List[float] = None):
 
@@ -22,6 +23,8 @@ class BernoulliBandit(MultiArmedBandit):
         elif probabilities != None and n_arms != len(probabilities):
             raise Exception(
                 "Length of probabilities vector must be the same of number of arms")
+        
+        self._best_action_mean = np.max(self._probabilities)
 
 
     def __repr__(self):
@@ -35,9 +38,11 @@ class BernoulliBandit(MultiArmedBandit):
         plt.legend()
         plt.show()
                     
-    def select_action(self, action: int):
+    def do_action(self, action: int):
         return binomial(size=1, n=1, p= self._probabilities[action])
     
-    def select_best_action(self):
-        best_action = np.argmax(self._probabilities)
-        return self.select_action(best_action)
+    def best_action_mean(self):
+        return self._best_action_mean
+    
+    def action_mean(self, action: int):
+        return self._probabilities[action]

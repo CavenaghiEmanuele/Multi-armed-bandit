@@ -14,9 +14,14 @@ class MultiArmedBandit(ABC):
         pass
 
     @abstractmethod
-    def select_action(self, action: int):
+    def do_action(self, action: int):
         pass
     
     @abstractmethod
-    def select_best_action(self):
+    def best_action_mean(self):
         pass
+    
+    @abstractmethod
+    def action_mean(self, action: int):
+        pass
+    
