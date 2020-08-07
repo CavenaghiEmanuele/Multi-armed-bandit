@@ -13,7 +13,7 @@ class BernoulliAlgo(ABC):
         self._n_arms = n_arms
         self._betas = [[1, 1] for _ in range(n_arms)]
 
-    def update_betas(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, reward: int) -> None:
         if reward == 0:
             self._betas[action][1] += 1  # Update beta
         else:  # Reward == 1
