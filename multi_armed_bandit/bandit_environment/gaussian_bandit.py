@@ -26,7 +26,7 @@ class GaussianBandit(MultiArmedBandit):
                 "Length of mean vector must be the same of number of arms")
 
         if std_dev == None:
-            self._std_dev = [uniform(0, 1) for _ in range(n_arms)]
+            self._std_dev = [uniform(0.5, 0.9) for _ in range(n_arms)]
         elif isinstance(std_dev, float) or isinstance(std_dev, int):
             self._std_dev = [std_dev for _ in range(n_arms)]
         elif std_dev != None and n_arms == len(std_dev):
