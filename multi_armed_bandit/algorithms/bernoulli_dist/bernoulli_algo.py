@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 from typing import List, Tuple
 from abc import ABC, abstractmethod
 
@@ -22,3 +24,14 @@ class BernoulliAlgo(ABC):
     @abstractmethod
     def select_action(self) -> int:
         pass
+    
+    def plot_estimates(self):  
+        fig = plt.figure()
+        for a in range(self._n_arms):
+            _ = plt.bar(a, self._betas[a][0] / (self._betas[a][0] + self._betas[a][1]), label="Action: " + str(a) + 
+                        ", Mean: " + str(self._betas[a][0] / (self._betas[a][0] + self._betas[a][1])) + 
+                        ", Parms: " + str(self._betas[a]))
+                        
+        fig.suptitle("Action's estimates")
+        fig.legend()
+        fig.show()
