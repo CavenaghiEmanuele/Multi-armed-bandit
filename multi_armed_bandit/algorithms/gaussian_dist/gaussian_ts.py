@@ -10,5 +10,5 @@ class GaussianThompsonSampling(GaussianAlgo):
         super().__init__(n_arms, decay_rate)
 
     def select_action(self) -> int:
-        samples = [normal(loc=self._mu[a], scale=self._dev_std[a]) for a in range(self._n_arms)]
+        samples = [normal(loc=self._mu[a], scale=self._std_dev[a]) for a in range(self._n_arms)]
         return np.argmax(samples)
