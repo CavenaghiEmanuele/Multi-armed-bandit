@@ -8,6 +8,9 @@ class MultiArmedBandit(ABC):
 
     def __init__(self, n_arms: int):
         self._n_arms = n_arms
+    
+    def get_n_arms(self):
+        return self._n_arms
 
     @abstractmethod
     def plot_arms(self):
