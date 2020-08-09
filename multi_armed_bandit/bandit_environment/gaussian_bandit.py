@@ -43,15 +43,15 @@ class GaussianBandit(MultiArmedBandit):
             "\nStandard Deviation = " + str(self._std_dev)
     
     def plot_arms(self):  
-        fig = plt.figure()
+        plt.figure()
         for a in range(self._n_arms):
             x = np.linspace(self._mean[a] - 3*self._std_dev[a], self._mean[a] + 3*self._std_dev[a])
-            _ = plt.plot(x, 
+            plt.plot(x, 
                      stats.norm.pdf(x, self._mean[a], self._std_dev[a]), 
                      label="Action: " + str(a) + ", Mean: " + str(self._mean[a]) + ", std_dev: " + str(self._std_dev[a]))
-        fig.suptitle("Bandit's arms")
-        fig.legend()
-        fig.show()
+        plt.suptitle("Bandit's arms values")
+        plt.legend()
+        plt.show()
                     
     def do_action(self, action: int):
         return normal(loc=self._mean[action], scale=self._std_dev[action])

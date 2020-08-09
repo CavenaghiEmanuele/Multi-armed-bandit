@@ -21,7 +21,7 @@ class BernoulliDynamicBandit(BernoulliBandit):
         for a in range(self._n_arms):
             plt.plot(self._action_selection[a], label="Action: " +
                         str(a) + ", prob: " + str(self._probabilities[a]))
-        plt.suptitle("Bandit's arms")
+        plt.suptitle("Bandit's arms values")
         plt.legend()
         plt.show()
 
