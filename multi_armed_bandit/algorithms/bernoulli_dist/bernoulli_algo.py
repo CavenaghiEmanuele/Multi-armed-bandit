@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 
+from  uuid import uuid1
 from typing import List, Tuple
 from abc import ABC, abstractmethod
 
@@ -11,7 +12,7 @@ class BernoulliAlgo(ABC):
 
     def __init__(self, n_arms: int):
         super().__init__()
-
+        self._id = uuid1()
         self._n_arms = n_arms
         self._betas = [[1, 1] for _ in range(n_arms)]
 
@@ -24,6 +25,9 @@ class BernoulliAlgo(ABC):
     @abstractmethod
     def select_action(self) -> int:
         pass
+    
+    def get_id(self):
+        return self._id
     
     def plot_estimates(self):  
         fig = plt.figure()
