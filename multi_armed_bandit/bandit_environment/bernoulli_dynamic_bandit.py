@@ -16,14 +16,15 @@ class BernoulliDynamicBandit(BernoulliBandit):
         self._probability_of_change = probability_of_change
         self._action_selection = {a:[self._probabilities[a]] for a in range(n_arms)}
 
-    def plot_arms(self):
+    def plot_arms(self, render: bool = True):
         plt.figure()
         for a in range(self._n_arms):
             plt.plot(self._action_selection[a], label="Action: " +
                         str(a) + ", prob: " + str(self._probabilities[a]))
         plt.suptitle("Bandit's arms values")
         plt.legend()
-        plt.show()
+        if render:
+            plt.show()
 
     def _change_action_probabilities(self):
         for action in range(self._n_arms):

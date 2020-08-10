@@ -31,13 +31,14 @@ class BernoulliBandit(MultiArmedBandit):
         return "Bernoulli Multi-armed bandit\n" + \
             "Probabilities = " + str(self._probabilities)
     
-    def plot_arms(self):
+    def plot_arms(self, render: bool = True):
         plt.figure()
         for a in range(self._n_arms):
             plt.bar(a, self._probabilities[a], label="Action: " + str(a) + ", prob: " + str(self._probabilities[a]))
         plt.suptitle("Bandit's arms values")
         plt.legend()
-        plt.show()
+        if render:
+            plt.show()
                          
     def do_action(self, action: int):
         return binomial(size=1, n=1, p= self._probabilities[action])
