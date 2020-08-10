@@ -1,26 +1,70 @@
+import matplotlib.pyplot as plt
+
 from typing import Dict, List
 from tqdm import trange
-from collections import defaultdict 
 
 
 class Session():
 
-    def __init__(self, env, agent):
-        self._env = env
-        self._agent = agent
+    _regret: Dict
+    _action_selection: Dict
+    _real_rewards_sum: Dict
 
-    def run(self, n_step: int):
-        regret = []
-        action_selection = {action:[0] for action in range(self._env.get_n_arms())}
-        for step in trange(n_step):
-            action = self._agent.select_action()
-            reward = self._env.do_action(action)
-            self._agent.update_estimates(action, reward)
-            regret.append(self._env.best_action_mean() - self._env.action_mean(action))
-            for a in range(self._env.get_n_arms()):
-                if a == action:
-                    action_selection[action].append(action_selection[action][-1]+1)
-                else:
-                    action_selection[a].append(action_selection[a][-1])
+    def __init__(self, env, agent: List):
+        self._env = env
+        if isinstance(agent, List):
+            self._agents = agent
+        else:
+            self._agents = [agent]
+
+        # Save statistics
+        self._regrets = {agent.get_id():[] for agent in self._agents}
+        self._real_rewards_sum = {agent.get_id():[0] for agent in self._agents}
+        self._action_selection = {agent.get_id(): {a:[0] for a in range(self._env.get_n_arms())} for agent in self._agents}
+
+    def run(self, n_step: int) -> None:
+        for agent in self._agents:
+            for step in trange(n_step):
+                action = agent.select_action()
+                reward = self._env.do_action(action)
+                agent.update_estimates(action, reward)
+                
+                # Update statistics
+                self._regrets[agent.get_id()].append(self._env.best_action_mean() - self._env.action_mean(action))
+                self._real_rewards_sum[agent.get_id()].append(self._env.action_mean(action) + self._real_rewards_sum[agent.get_id()][-1])
+                for a in range(self._env.get_n_arms()):
+                    if a == action:
+                        self._action_selection[agent.get_id()][action].append(self._action_selection[agent.get_id()][action][-1]+1)
+                    else:
+                        self._action_selection[agent.get_id()][a].append(self._action_selection[agent.get_id()][a][-1])
         
-        return {"regret":regret, "action_selection":action_selection}
+
+    def plot_regret(self, render: bool=True):
+        plt.figure()
+        for agent in self._agents:
+            plt.plot(self._regrets[agent.get_id()], label=agent)
+        plt.suptitle("Regret")
+        plt.legend()
+        if render:
+            plt.show()
+    
+    def plot__action_selection(self, render: bool=True):
+        fig, axs = plt.subplots(len(self._agents))
+        for i, agent in enumerate(self._agents):
+            for action in range(self._env.get_n_arms()):
+                axs[i].plot(self._action_selection[agent.get_id()][action], label="Action: " + str(action))
+                axs[i].set_title("Action selection: " + str(agent))
+                axs[i].legend()
+   
+        fig.suptitle("Action selection")
+        if render:
+            plt.show()
+    
+    def plot_real_rewards_sum(self, render: bool=True):
+        plt.figure()
+        for agent in self._agents:
+            plt.plot(self._real_rewards_sum[agent.get_id()], label=agent)
+        plt.suptitle("Real rewards sum")
+        plt.legend()
+        if render:
+            plt.show()
