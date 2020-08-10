@@ -7,6 +7,9 @@ class BernoulliGreedy(BernoulliAlgo):
 
     def __init__(self, n_arms: int):
         super().__init__(n_arms)
+    
+    def __repr__(self):
+        return "Greedy Bernoulli"
 
     def select_action(self) -> int:
         estimates = [self._betas[a][0] / (self._betas[a][0] + self._betas[a][1])

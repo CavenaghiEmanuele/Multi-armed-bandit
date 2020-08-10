@@ -16,6 +16,9 @@ class BernoulliUCB(BernoulliAlgo):
         self._action_taken = 0
         self._action_selection = [0 for _ in range(n_arms)]
         self._c = c
+    
+    def __repr__(self):
+        return "UCB Bernoulli"
 
     def select_action(self) -> int:
         self._action_taken += 1
