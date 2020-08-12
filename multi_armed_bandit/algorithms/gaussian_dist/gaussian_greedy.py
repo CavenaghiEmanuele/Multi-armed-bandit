@@ -5,7 +5,7 @@ import numpy as np
 
 class GaussianGreedy(GaussianAlgo):
 
-    def __init__(self, n_arms: int, decay_rate: float = 0.01):
+    def __init__(self, n_arms: int, decay_rate: float = 0.99):
         super().__init__(n_arms, decay_rate)
 
     def __repr__(self):
