@@ -56,14 +56,21 @@ class Session():
             plt.show()
     
     def plot_action_selection(self, render: bool=True):
-        fig, axs = plt.subplots(len(self._agents))
-        for i, agent in enumerate(self._agents):
-            for action in range(self._env.get_n_arms()):
-                axs[i].plot(self._action_selection[agent.get_id()][action], label="Action: " + str(action))
-                axs[i].set_title("Action selection: " + str(agent))
-                axs[i].legend()
-   
-        fig.suptitle("Action selection")
+        if len(self._agents) > 1:
+            fig, axs = plt.subplots(len(self._agents))
+            for i, agent in enumerate(self._agents):
+                for action in range(self._env.get_n_arms()):
+                    axs[i].plot(self._action_selection[agent.get_id()][action], label="Action: " + str(action))
+                    axs[i].set_title("Action selection: " + str(agent))
+                    axs[i].legend()
+                fig.suptitle("Action selection")
+        else:
+            fig = plt.figure()
+            agent = self._agents[0]
+            plt.plot(self._regrets[agent.get_id()], label=agent)
+            plt.legend()
+            plt.suptitle("Regret")
+        
         if render:
             plt.show()
     
