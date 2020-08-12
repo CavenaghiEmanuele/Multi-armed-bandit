@@ -1,46 +1,35 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import uniform, normal
-from typing import List, Dict
+from typing import List
 
-from . import GaussianBandit
+from . import GaussianBandit, DynamicMultiArmedBandit
 
 
-class GaussianDynamicBandit(GaussianBandit):
+class GaussianDynamicBandit(DynamicMultiArmedBandit, GaussianBandit):
 
-    _probability_of_change: float
-    _action_selection: Dict
-    _fixed_actions: List = []
+    def __init__(self, n_arms: int, mean: List[float] = None, std_dev: List[float] = None,
+                 prob_of_change: float = 0.001, fixed_action_prob: float = None):
 
-    def __init__(self, n_arms: int, mean: List[float] = None, std_dev: List[float] = None, 
-                 probability_of_change: float = 0.001, fixed_action_prob: float = None):
-        super().__init__(n_arms, mean, std_dev)
-        self._probability_of_change = probability_of_change
-        self._action_selection = {a:[self._mean[a]] for a in range(n_arms)}
-        
-        if fixed_action_prob != None:
-            for i in range(n_arms):
-                if uniform(0, 1) < fixed_action_prob:
-                    self._fixed_actions.append(i)
+        DynamicMultiArmedBandit.__init__(self, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=fixed_action_prob)
+        GaussianBandit.__init__(self, n_arms=n_arms,
+                                mean=mean, std_dev=std_dev)
 
-    def plot_arms(self, render: bool = True):  
+        self._action_selection = {a: [self._mean[a]] for a in range(n_arms)}
+
+    def plot_arms(self, render: bool = True):
         plt.figure()
         for a in range(self._n_arms):
-            plt.plot(self._action_selection[a], 
+            plt.plot(self._action_selection[a],
                      label="Action: " + str(a) + ", Mean: " + str(self._mean[a]) + ", std_dev: " + str(self._std_dev[a]))
         plt.suptitle("Bandit's arms values")
         plt.legend()
         if render:
             plt.show()
 
-    def _change_action_probabilities(self):
+    def change_action_prob(self):
         for action in range(self._n_arms):
             if (not action in self._fixed_actions) and (uniform(0, 1) < self._probability_of_change):
                 self._mean[action] = uniform(0, 1)
                 self._best_action_mean = np.max(self._mean)
             self._action_selection[action].append(self._mean[action])
-
-    def do_action(self, action: int):
-        reward = normal(loc=self._mean[action], scale=self._std_dev[action])
-        self._change_action_probabilities()
-        return reward

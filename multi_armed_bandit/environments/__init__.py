@@ -1,4 +1,5 @@
 from .multi_armed_bandit import MultiArmedBandit
+from .dynamic_multi_armed_bandit import DynamicMultiArmedBandit
 from .gaussian_bandit import GaussianBandit
 from .bernoulli_bandit import BernoulliBandit
 from .bernoulli_dynamic_bandit import BernoulliDynamicBandit
