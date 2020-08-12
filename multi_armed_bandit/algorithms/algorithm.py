@@ -1,5 +1,4 @@
 from uuid import uuid1
-from typing import List, Tuple
 from abc import ABC, abstractmethod
 
 
