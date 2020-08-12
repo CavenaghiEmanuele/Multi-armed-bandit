@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 class MultiArmedBandit(ABC):
 
     _n_arms: int
-    _best_action_mean: float
+    _best_action: float
 
     def __init__(self, n_arms: int):
         self._n_arms = n_arms
@@ -22,6 +22,10 @@ class MultiArmedBandit(ABC):
     
     @abstractmethod
     def best_action_mean(self):
+        pass
+    
+    @abstractmethod
+    def get_best_action(self):
         pass
     
     @abstractmethod

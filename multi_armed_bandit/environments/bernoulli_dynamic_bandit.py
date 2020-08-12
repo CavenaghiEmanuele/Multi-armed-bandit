@@ -31,5 +31,5 @@ class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
         for action in range(self._n_arms):
             if (not action in self._fixed_actions) and (uniform(0, 1) < self._prob_of_change):
                 self._probabilities[action] = uniform(0, 1)
-                self._best_action_mean = np.max(self._probabilities)
+                self._best_action = np.argmax(self._probabilities)
             self._action_value_trace[action].append(self._probabilities[action])

@@ -22,13 +22,12 @@ class BernoulliBandit(MultiArmedBandit):
             raise Exception(
                 "Length of probabilities vector must be the same of number of arms")
         
-        self._best_action_mean = np.max(self._probabilities)
-
+        self._best_action = np.argmax(self._probabilities)
 
     def __repr__(self):
         return "Bernoulli Multi-armed bandit\n" + \
             "Probabilities = " + str(self._probabilities)
-    
+
     def plot_arms(self, render: bool = True):
         plt.figure()
         for a in range(self._n_arms):
@@ -37,12 +36,15 @@ class BernoulliBandit(MultiArmedBandit):
         plt.legend()
         if render:
             plt.show()
-                         
+
     def do_action(self, action: int):
         return binomial(size=1, n=1, p= self._probabilities[action])
-    
+
     def best_action_mean(self):
-        return self._best_action_mean
-    
+        return self._probabilities[self._best_action]
+
+    def get_best_action(self):
+        return self._best_action
+
     def action_mean(self, action: int):
         return self._probabilities[action]
