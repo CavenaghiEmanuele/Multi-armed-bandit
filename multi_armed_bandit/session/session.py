@@ -55,7 +55,7 @@ class Session():
         if render:
             plt.show()
     
-    def plot__action_selection(self, render: bool=True):
+    def plot_action_selection(self, render: bool=True):
         fig, axs = plt.subplots(len(self._agents))
         for i, agent in enumerate(self._agents):
             for action in range(self._env.get_n_arms()):
