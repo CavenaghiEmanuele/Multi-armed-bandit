@@ -25,10 +25,15 @@ class Session():
         # Save statistics
         self._regrets = {agent.get_id():[] for agent in self._agents}
         self._real_rewards_sum = {agent.get_id():[0] for agent in self._agents}
+        self._real_rewards_sum.update({"Oracle":[0]})
         self._action_selection = {agent.get_id(): {a:[0] for a in range(self._env.get_n_arms())} for agent in self._agents}
 
     def run(self, n_step: int) -> None:
         for step in trange(n_step):
+            # Oracle 
+            action = self._env.get_best_action()
+            self._real_rewards_sum["Oracle"].append(self._env.action_mean(action) + self._real_rewards_sum["Oracle"][-1])
+            
             for agent in self._agents:
                 action = agent.select_action()
                 reward = self._env.do_action(action)
@@ -67,15 +72,17 @@ class Session():
         else:
             fig = plt.figure()
             agent = self._agents[0]
-            plt.plot(self._regrets[agent.get_id()], label=agent)
-            plt.legend()
-            plt.suptitle("Regret")
+            for action in range(self._env.get_n_arms()):
+                plt.plot(self._action_selection[agent.get_id()][action], label="Action: " + str(action))
+                plt.legend()
+            plt.suptitle("Action selection")
         
         if render:
             plt.show()
     
     def plot_real_rewards_sum(self, render: bool=True):
         plt.figure()
+        plt.plot(self._real_rewards_sum["Oracle"], label="Oracle")
         for agent in self._agents:
             plt.plot(self._real_rewards_sum[agent.get_id()], label=agent)
         plt.suptitle("Real rewards sum")
