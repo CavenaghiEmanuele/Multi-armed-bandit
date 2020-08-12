@@ -3,12 +3,16 @@ import matplotlib.pyplot as plt
 from typing import Dict, List
 from tqdm import trange
 
+from ..environments import MultiArmedBandit, DynamicMultiArmedBandit
+
 
 class Session():
 
     _regret: Dict
     _action_selection: Dict
     _real_rewards_sum: Dict
+    _env: MultiArmedBandit
+    _agents: List
 
     def __init__(self, env, agent: List):
         self._env = env
@@ -23,8 +27,8 @@ class Session():
         self._action_selection = {agent.get_id(): {a:[0] for a in range(self._env.get_n_arms())} for agent in self._agents}
 
     def run(self, n_step: int) -> None:
-        for agent in self._agents:
-            for step in trange(n_step):
+        for step in trange(n_step):
+            for agent in self._agents:
                 action = agent.select_action()
                 reward = self._env.do_action(action)
                 agent.update_estimates(action, reward)
@@ -37,7 +41,9 @@ class Session():
                         self._action_selection[agent.get_id()][action].append(self._action_selection[agent.get_id()][action][-1]+1)
                     else:
                         self._action_selection[agent.get_id()][a].append(self._action_selection[agent.get_id()][a][-1])
-        
+
+            if isinstance(self._env, DynamicMultiArmedBandit):
+                self._env.change_action_prob()
 
     def plot_regret(self, render: bool=True):
         plt.figure()
