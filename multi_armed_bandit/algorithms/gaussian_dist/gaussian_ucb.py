@@ -12,7 +12,7 @@ class GaussianUCB(GaussianAlgo):
     _c: float
 
     def __init__(self, n_arms: int, c: float=1, decay_rate: float = 0.99):
-        super().__init__(n_arms)
+        super().__init__(n_arms=n_arms, decay_rate=decay_rate)
         self._action_taken = 0
         self._action_selection = [0 for _ in range(n_arms)]
         self._c = c
