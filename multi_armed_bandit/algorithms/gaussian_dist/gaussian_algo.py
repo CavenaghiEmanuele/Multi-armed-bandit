@@ -2,22 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 
-from  uuid import uuid1
-from typing import List, Tuple
-from abc import ABC, abstractmethod
+from typing import List
+from abc import ABC
+
+from ..algorithm import Algorithm
 
 
-class GaussianAlgo(ABC):
+class GaussianAlgo(Algorithm, ABC):
 
-    _n_arms: int
     _mu: List[float]
     _std_dev: List[float]
     _n_action_taken: List[int]
 
     def __init__(self, n_arms: int, decay_rate: float = 0.99):
-        super().__init__()
-        self._id = uuid1()
-        self._n_arms = n_arms
+        super().__init__(n_arms=n_arms)
         self._mu = np.ones(n_arms)
         self._std_dev = np.ones(n_arms)
         self._decay_rate = decay_rate
@@ -31,13 +29,6 @@ class GaussianAlgo(ABC):
             self._mu[action] = reward
             return
         self._mu[action] += (1 / n) * (reward - self._mu[action])
-    
-    def get_id(self):
-        return self._id
-        
-    @abstractmethod
-    def select_action(self) -> int:
-        pass
     
     def plot_estimates(self):  
         fig = plt.figure()

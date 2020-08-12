@@ -4,6 +4,7 @@ from typing import Dict, List
 from tqdm import trange
 
 from ..environments import MultiArmedBandit, DynamicMultiArmedBandit
+from ..algorithms import Algorithm
 
 
 class Session():
@@ -12,7 +13,7 @@ class Session():
     _action_selection: Dict
     _real_rewards_sum: Dict
     _env: MultiArmedBandit
-    _agents: List
+    _agents: List[Algorithm]
 
     def __init__(self, env, agent: List):
         self._env = env
