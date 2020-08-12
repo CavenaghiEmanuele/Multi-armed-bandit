@@ -15,12 +15,12 @@ class GaussianDynamicBandit(DynamicMultiArmedBandit, GaussianBandit):
         GaussianBandit.__init__(self, n_arms=n_arms,
                                 mean=mean, std_dev=std_dev)
 
-        self._action_selection = {a: [self._mean[a]] for a in range(n_arms)}
+        self._action_value_trace = {a: [self._mean[a]] for a in range(n_arms)}
 
     def plot_arms(self, render: bool = True):
         plt.figure()
         for a in range(self._n_arms):
-            plt.plot(self._action_selection[a],
+            plt.plot(self._action_value_trace[a],
                      label="Action: " + str(a) + ", Mean: " + str(self._mean[a]) + ", std_dev: " + str(self._std_dev[a]))
         plt.suptitle("Bandit's arms values")
         plt.legend()
@@ -29,7 +29,7 @@ class GaussianDynamicBandit(DynamicMultiArmedBandit, GaussianBandit):
 
     def change_action_prob(self):
         for action in range(self._n_arms):
-            if (not action in self._fixed_actions) and (uniform(0, 1) < self._probability_of_change):
+            if (not action in self._fixed_actions) and (uniform(0, 1) < self._prob_of_change):
                 self._mean[action] = uniform(0, 1)
                 self._best_action_mean = np.max(self._mean)
-            self._action_selection[action].append(self._mean[action])
+            self._action_value_trace[action].append(self._mean[action])
