@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 from typing import List, Tuple
 from abc import ABC, abstractmethod
@@ -8,11 +9,11 @@ from ..algorithm import Algorithm
 
 class BernoulliAlgo(Algorithm, ABC):
 
-    _betas: List[Tuple]
+    _betas: np.ndarray
 
     def __init__(self, n_arms: int):
         super().__init__(n_arms=n_arms)
-        self._betas = [[1, 1] for _ in range(n_arms)]
+        self._betas = np.ones(shape=(n_arms, 2))
 
     def update_estimates(self, action: int, reward: int) -> None:
         if reward == 0:
