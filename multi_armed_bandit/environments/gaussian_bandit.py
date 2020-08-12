@@ -9,7 +9,6 @@ from . import MultiArmedBandit
 
 class GaussianBandit(MultiArmedBandit):
 
-    _n_arms: int
     _mean: List[float]
     _std_dev: List[float]
 

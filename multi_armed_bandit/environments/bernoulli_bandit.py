@@ -8,7 +8,6 @@ from . import MultiArmedBandit
 
 class BernoulliBandit(MultiArmedBandit):
 
-    _n_arms: int
     _probabilities: float
     _best_action_mean: float
     
