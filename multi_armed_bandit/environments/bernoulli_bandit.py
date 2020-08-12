@@ -9,7 +9,6 @@ from . import MultiArmedBandit
 class BernoulliBandit(MultiArmedBandit):
 
     _probabilities: float
-    _best_action_mean: float
     
     def __init__(self, n_arms: int, probabilities: List[float] = None):
 
