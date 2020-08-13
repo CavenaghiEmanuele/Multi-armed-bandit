@@ -49,7 +49,7 @@ class Session():
                         self._action_selection[agent.get_id()][a].append(self._action_selection[agent.get_id()][a][-1])
 
             if isinstance(self._env, DynamicMultiArmedBandit):
-                self._env.change_action_prob()
+                self._env.change_action_prob(step=step)
 
     def plot_regret(self, render: bool=True):
         plt.figure()
