@@ -26,6 +26,9 @@ class DynamicMultiArmedBandit(MultiArmedBandit, ABC):
                 if uniform(0, 1) < fixed_action_prob:
                     self._fixed_actions.append(i)
 
+    def get_replay(self):
+        return self._replays
+    
     @abstractmethod          
     def change_action_prob(self, step: int):
         pass
