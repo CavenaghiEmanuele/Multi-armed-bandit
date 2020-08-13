@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import uniform, binomial
 from typing import List
+from copy import deepcopy
 
 from . import BernoulliBandit, DynamicMultiArmedBandit
 
@@ -16,7 +17,7 @@ class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
         
         self._action_value_trace = {a:[self._probabilities[a]] for a in range(n_arms)}
         if save_replay:
-            self._replays = {0 : [(a, self._probabilities[a]) for a in range(n_arms)]}
+            self._replays.update({"probabilities": deepcopy(self._probabilities)})
 
 
     def plot_arms(self, render: bool = True):

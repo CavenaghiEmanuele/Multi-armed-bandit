@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import uniform, normal
 from typing import List
+from copy import deepcopy
 
 from . import GaussianBandit, DynamicMultiArmedBandit
 
@@ -17,7 +18,7 @@ class GaussianDynamicBandit(DynamicMultiArmedBandit, GaussianBandit):
 
         self._action_value_trace = {a: [self._mean[a]] for a in range(n_arms)}
         if save_replay:
-            self._replays = {"std_dev" : self._std_dev, 0 : [(a, self._mean[a]) for a in range(n_arms)]}
+            self._replays = {"std_dev" : deepcopy(self._std_dev), "mean" : deepcopy(self._mean)}
 
     def plot_arms(self, render: bool = True):
         plt.figure()
