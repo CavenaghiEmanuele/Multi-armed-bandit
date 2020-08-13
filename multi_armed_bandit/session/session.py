@@ -62,7 +62,7 @@ class Session():
     
     def plot_action_selection(self, render: bool=True):
         if len(self._agents) > 1:
-            fig, axs = plt.subplots(len(self._agents))
+            fig, axs = plt.subplots(len(self._agents), sharey=True)
             for i, agent in enumerate(self._agents):
                 for action in range(self._env.get_n_arms()):
                     axs[i].plot(self._action_selection[agent.get_id()][action], label="Action: " + str(action))
