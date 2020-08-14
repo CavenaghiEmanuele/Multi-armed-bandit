@@ -1,21 +1,21 @@
 import numpy as np
 from typing import Dict
+from copy import deepcopy
 
 from . import GaussianDynamicBandit
 
 
 class GaussianReplayBandit(GaussianDynamicBandit):
 
-    _action_value_trace: Dict
     _replay: Dict
 
     def __init__(self, replay: Dict):
+        self._replay = deepcopy(replay)
         GaussianDynamicBandit.__init__(self, n_arms=len(replay["mean"]), mean=replay["mean"], std_dev=replay["std_dev"])
-        self._replay = replay
         
     def reset_to_start(self):
-        self._mean = self._replay["mean"]
-        self._std_dev = self._replay["std_dev"]
+        self._mean = deepcopy(self._replay["mean"])
+        self._std_dev = deepcopy(self._replay["std_dev"])
         self._action_value_trace = {a: [self._mean[a]] for a in range(self._n_arms)}
 
     def change_action_prob(self, step: int):

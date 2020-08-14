@@ -1,20 +1,20 @@
 import numpy as np
 from typing import Dict
+from copy import deepcopy
 
 from . import BernoulliDynamicBandit
 
 
 class BernoulliReplayBandit(BernoulliDynamicBandit):
 
-    _action_value_trace: Dict
     _replay: Dict
 
     def __init__(self, replay: Dict):
+        self._replay = deepcopy(replay)
         BernoulliDynamicBandit.__init__(self, n_arms=len(replay["probabilities"]), probabilities=replay["probabilities"])
-        self._replay = replay
 
     def reset_to_start(self):
-        self._probabilities = self._replay["probabilities"]
+        self._probabilities = deepcopy(self._replay["probabilities"])
         self._action_value_trace = {a:[self._probabilities[a]] for a in range(self._n_arms)}
 
     def change_action_prob(self, step: int):
