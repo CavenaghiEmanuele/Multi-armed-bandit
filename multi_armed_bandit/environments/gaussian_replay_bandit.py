@@ -12,6 +12,10 @@ class GaussianReplayBandit(GaussianDynamicBandit):
     def __init__(self, replay: Dict):
         GaussianDynamicBandit.__init__(self, n_arms=len(replay["mean"]), mean=replay["mean"], std_dev=replay["std_dev"])
         self._replay = replay
+        
+    def reset_to_start(self):
+        self._mean = self._replay["mean"]
+        self._std_dev = self._replay["std_dev"]
 
     def change_action_prob(self, step: int):
         try:

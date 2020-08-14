@@ -13,6 +13,9 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
         BernoulliDynamicBandit.__init__(self, n_arms=len(replay["probabilities"]), probabilities=replay["probabilities"])
         self._replay = replay
 
+    def reset_to_start(self):
+        self._probabilities = self._replay["probabilities"]
+
     def change_action_prob(self, step: int):
         try:
             for change in self._replay[step]:
