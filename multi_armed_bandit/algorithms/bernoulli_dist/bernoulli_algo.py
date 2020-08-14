@@ -14,6 +14,9 @@ class BernoulliAlgo(Algorithm, ABC):
     def __init__(self, n_arms: int):
         super().__init__(n_arms=n_arms)
         self._betas = np.ones(shape=(n_arms, 2))
+        
+    def reset_agent(self):
+        self._betas = np.ones(shape=(self._n_arms, 2))
 
     def update_estimates(self, action: int, reward: int) -> None:
         if reward == 0:

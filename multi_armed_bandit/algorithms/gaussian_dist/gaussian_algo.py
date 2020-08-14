@@ -20,6 +20,11 @@ class GaussianAlgo(Algorithm, ABC):
         self._std_dev = np.ones(n_arms)
         self._decay_rate = decay_rate
         self._n_action_taken = np.zeros(n_arms)
+        
+    def reset_agent(self):
+        self._mu = np.ones(self._n_arms)
+        self._std_dev = np.ones(self._n_arms)
+        self._n_action_taken = np.zeros(self._n_arms)
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._n_action_taken[action] += 1
