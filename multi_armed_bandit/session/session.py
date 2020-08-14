@@ -35,17 +35,10 @@ class Session():
 
         self._action_selection_trace = {agent.get_id(): {a:np.zeros(n_step) for a in range(self._env.get_n_arms())} for agent in self._agents}
         
-        
         for test in trange(n_test):
-            
             self._real_reward = {agent.get_id(): 0 for agent in self._agents}
             self._real_reward.update({"Oracle": 0})
             self._action_selection = {agent.get_id(): {a : 0 for a in range(self._env.get_n_arms())} for agent in self._agents}
-            # Reset env to start condition, then the changes will be those stored in the replay saved inside the env
-            if use_replay:
-                self._env.reset_to_start()
-                for agent in self._agents:
-                    agent.reset_agent()
             
             for step in range(n_step):
                 # Oracle
@@ -60,6 +53,12 @@ class Session():
 
                 if isinstance(self._env, DynamicMultiArmedBandit):
                     self._env.change_action_prob(step=step)
+            
+            # Reset env and agent to start condition, then the changes will be those stored in the replay saved inside the env
+            if (test < n_test-1) and use_replay:
+                self._env.reset_to_start()
+                for agent in self._agents:
+                    agent.reset_agent()
 
 
     def _update_statistic(self, test, step, id_agent, action):
