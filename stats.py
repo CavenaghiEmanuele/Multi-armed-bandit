@@ -58,7 +58,40 @@ def non_stationary_bernoulli():
     plt.show()
 
 
+def non_stationary_bernoulli_paper():
+    n_arms = 4
+    # Build environment
+    replay = {'probabilities': [0.0, 0.0, 0.0, 0.0], 
+              50: [(0, 0.1)], 100: [(1, 0.37)], 150: [(2, 0.63)], 200: [(3, 0.9)],
+              250:[(0, 0.0), (1, 0.0), (2, 0.0), (3, 0.0)],
+              300: [(0, 0.1)], 350: [(1, 0.37)], 400: [(2, 0.63)], 450: [(3, 0.9)],
+              500:[(0, 0.0), (1, 0.0), (2, 0.0), (3, 0.0)],
+              550: [(0, 0.1)], 600: [(1, 0.37)], 650: [(2, 0.63)], 700: [(3, 0.9)],
+              750:[(0, 0.0), (1, 0.0), (2, 0.0), (3, 0.0)],
+              800: [(0, 0.1)], 850: [(1, 0.37)], 900: [(2, 0.63)], 950: [(3, 0.9)],            
+              }
+    replay_env = mab.BernoulliReplayBandit(replay=replay)
+
+    # Build Agents
+    greedy = mab.BernoulliGreedy(n_arms)
+    ucb = mab.BernoulliUCB(n_arms, c = 1)
+    ts = mab.BernoulliThompsonSampling(n_arms)
+    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.95)
+    
+    # Build session
+    replay_session = mab.Session(replay_env, [greedy, ucb, ts, dynamic_ts])
+    
+    # Run session
+    replay_session.run(n_step=1000, n_test=1000, use_replay=True)
+    
+    #Plot results
+    replay_env.plot_arms(render=False)
+    replay_session.plot_all(render=False)
+    plt.show()
+    
+
 if __name__ == "__main__":
     
     #stationary_bernoulli()
-    non_stationary_bernoulli()
+    #non_stationary_bernoulli()
+    non_stationary_bernoulli_paper()
