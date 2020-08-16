@@ -121,3 +121,5 @@ class Session():
         self.plot_regret(render=False)
         self.plot_action_selection_trace(render=False)
         self.plot_real_reward_trace(render=False)
+        if render:
+            plt.show()
