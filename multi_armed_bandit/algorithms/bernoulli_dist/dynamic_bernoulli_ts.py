@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from numpy.random import beta
-from abc import ABC
 
 from . import BernoulliAlgo
+
 
 '''
 From Paper: "Taming Non-stationary Bandits: A Bayesian Approach"
 '''
-class DynamicBernoulliTS(BernoulliAlgo, ABC):
+class DynamicBernoulliTS(BernoulliAlgo):
 
     _alpha_0: float
     _beta_0: float
