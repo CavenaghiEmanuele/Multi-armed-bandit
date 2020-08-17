@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 def stationary_bernoulli():
     n_arms = 5
     # Build environment
-    env = mab.BernoulliBandit(n_arms)
+    env = mab.BernoulliBandit(n_arms, probabilities=[0.8, 0.4, 0.6, 0.75, 0.7])
     env.plot_arms(render=True)
     
     # Build Agents
@@ -82,10 +82,14 @@ def non_stationary_bernoulli_paper():
     replay_session = mab.Session(replay_env, [greedy, ucb, ts, dynamic_ts])
     
     # Run session
-    replay_session.run(n_step=1000, n_test=1000, use_replay=True)
+    replay_session.run(n_step=1000, n_test=10, use_replay=True)
     
     #Plot results
     replay_env.plot_arms(render=False)
+    greedy.plot_estimates(render=False)
+    ucb.plot_estimates(render=False)
+    ts.plot_estimates(render=False)
+    dynamic_ts.plot_estimates(render=False)
     replay_session.plot_all(render=False)
     plt.show()
     
