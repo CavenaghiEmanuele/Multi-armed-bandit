@@ -14,6 +14,10 @@ class Algorithm(ABC):
         return self._id
     
     @abstractmethod
+    def reset_agent(self):
+        pass
+    
+    @abstractmethod
     def update_estimates(self, action: int, reward: int) -> None:
         pass
 
