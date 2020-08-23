@@ -123,3 +123,6 @@ class Session():
         self.plot_real_reward_trace(render=False)
         if render:
             plt.show()
+
+    def get_reward_sum(self, agent: Algorithm):
+        return self._real_reward_trace[agent.get_id()][-1]
