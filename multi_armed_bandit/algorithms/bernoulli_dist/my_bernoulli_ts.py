@@ -35,7 +35,7 @@ class MyBernoulliTS(BernoulliAlgo):
         tmp_mean = self._last_reward_trace[action].count(1) / len(self._last_reward_trace[action])
         distance = abs(self._betas[action][0] / (self._betas[action][0] + self._betas[action][1]) - tmp_mean)
 
-        if distance > self._threshold:
+        if distance > self._threshold and len(self._last_reward_trace[action]) > self._n:
             self._betas[action][0] = 1 + self._last_reward_trace[action].count(1) # Reward == 1
             self._betas[action][1] = 1 + self._last_reward_trace[action].count(0) # Reward == 0
         else:
