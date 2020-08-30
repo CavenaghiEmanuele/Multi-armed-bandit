@@ -29,6 +29,9 @@ class BernoulliSlidingWindowTS(BernoulliAlgo):
             self._betas[action][1] += 1  # Update beta
         else:  # Reward == 1
             self._betas[action][0] += 1  # Update alpha
+        
+        for a in range(self._n_arms):
+            self._mean_trace[a].append(self._betas[a][0] / (self._betas[a][0] + self._betas[a][1]))
 
     def update_last_n_action_trace(self, action: int, reward: int):
         if len(self._last_n_action) >= self._n:
