@@ -125,4 +125,6 @@ class Session():
             plt.show()
 
     def get_reward_sum(self, agent: Algorithm):
+        if agent == "Oracle":
+            return self._real_reward_trace["Oracle"][-1]
         return self._real_reward_trace[agent.get_id()][-1]
