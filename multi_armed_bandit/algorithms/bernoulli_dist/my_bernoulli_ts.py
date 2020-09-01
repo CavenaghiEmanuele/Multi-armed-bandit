@@ -28,7 +28,6 @@ class MyBernoulliTS(BernoulliAlgo):
         self._betas *= self._gamma
         self.update_tmp_betas(action, reward)
         self._betas[action][reward] += 1
-
         for a in range(self._n_arms):
             self._mean_trace[a].append(self._betas[a][1] / (self._betas[a][1] + self._betas[a][0]))
 
@@ -36,14 +35,13 @@ class MyBernoulliTS(BernoulliAlgo):
         if len(self._last_reward_trace[action]) >= self._n:
             tmp_reward = self._last_reward_trace[action].pop(0)
             self._tmp_betas[action][tmp_reward] -= 1
-
         self._tmp_betas[action][reward] += 1
         self._last_reward_trace[action].append(reward)
 
     def select_action(self) -> int:
-        samples = [beta(a=self._betas[a][1], b=self._betas[a][0])
+        samples = [beta(a=self._betas[a][1] + 1, b=self._betas[a][0] + 1)
                    for a in range(self._n_arms)]
         tmp_samples = [beta(a=self._tmp_betas[a][1], b=self._tmp_betas[a][0])
                    for a in range(self._n_arms)]
-        
+
         return np.argmax([max(samples[a], tmp_samples[a]) for a in range(self._n_arms)])
