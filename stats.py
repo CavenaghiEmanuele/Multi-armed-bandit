@@ -32,11 +32,11 @@ def stationary_bernoulli():
 def non_stationary_bernoulli():
     n_arms = 5
     # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.001, fixed_action_prob=0.1, save_replay=True)
+    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.003, fixed_action_prob=0.1, save_replay=True)
     
     # Generate replay
     session = mab.Session(env, [])
-    session.run(n_step=2000)
+    session.run(n_step=1000)
     env.plot_arms(render=True)
 
     # Build Env with replay
@@ -47,7 +47,7 @@ def non_stationary_bernoulli():
     ts = mab.BernoulliThompsonSampling(n_arms)
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.99)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.99, threshold=0.1, n=30)
+    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.99, n=30)
     
     # Build session
     replay_session = mab.Session(replay_env, [greedy, ts, dynamic_ts, sw_ts, my_ts])
@@ -77,25 +77,23 @@ def non_stationary_bernoulli_paper():
     replay_env = mab.BernoulliReplayBandit(replay=replay)
 
     # Build Agents
-    greedy = mab.BernoulliGreedy(n_arms)
-    ucb = mab.BernoulliUCB(n_arms, c = 1)
     ts = mab.BernoulliThompsonSampling(n_arms)
-    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.95)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.97, threshold=0.20, n=20)
+    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
+    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=30)
 
     
     # Build session
-    replay_session = mab.Session(replay_env, [greedy, ucb, ts, dynamic_ts, my_ts])
+    replay_session = mab.Session(replay_env, [ts, dynamic_ts, sw_ts, my_ts])
     
     # Run session
-    replay_session.run(n_step=1000, n_test=10, use_replay=True)
+    replay_session.run(n_step=1000, n_test=100, use_replay=True)
     
     #Plot results
     replay_env.plot_arms(render=False)
-    greedy.plot_estimates(render=False)
-    ucb.plot_estimates(render=False)
     ts.plot_estimates(render=False)
     dynamic_ts.plot_estimates(render=False)
+    sw_ts.plot_estimates(render=False)
     my_ts.plot_estimates(render=False)
     replay_session.plot_all(render=False)
     plt.show()
@@ -103,11 +101,12 @@ def non_stationary_bernoulli_paper():
 
 def multiple_env():
     n_arms = 5
-    n_step = 2000
+    n_step = 1000
     n_test = 30
-    n_envs = 250
+    n_envs = 1000
 
-    rewards = {"Greedy Bernoulli": 0,
+    rewards = {"Oracle": 0,
+               "Greedy Bernoulli": 0,
                "Thompson Sampling Bernoulli": 0,
                "Dynamic Thompson Sampling Bernoulli": 0,
                "Sliding Window Thompson Sampling Bernoulli": 0,
@@ -130,7 +129,7 @@ def multiple_env():
 
 def launch_session(n_arms, n_step, n_test):
     # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.002, fixed_action_prob=0.05, save_replay=True)
+    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.003, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
@@ -139,9 +138,9 @@ def launch_session(n_arms, n_step, n_test):
     # Build Agents
     greedy = mab.BernoulliGreedy(n_arms)
     ts = mab.BernoulliThompsonSampling(n_arms)
-    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.99)
-    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.99, threshold=0.15, n=40)
+    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
+    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=20)
     agents = [greedy, ts, dynamic_ts, sw_ts, my_ts]
 
     # Build Env with replay
@@ -152,24 +151,33 @@ def launch_session(n_arms, n_step, n_test):
 
     # Run session
     replay_session.run(n_step=n_step, n_test=n_test, use_replay=True)
-
-    return {agent: replay_session.get_reward_sum(agent)/n_step for agent in agents}
+    results = {agent: replay_session.get_reward_sum(agent)/n_step for agent in agents}
+    results.update({"Oracle" : replay_session.get_reward_sum("Oracle")/n_step})
+    return results
 
 
 def non_stationary_bernoulli_custom():
     n_arms = 4
     # Build environment
-    replay = {'probabilities': [0.9, 0.7, 0.3, 0.4], 
-              250: [(0, 0.1)],
-              500: [(1, 0.1)]
+    
+    '''
+    replay = {'probabilities': [0.0, 0.0, 0.1, 0.3], 
+              250: [(0, 0.7)],
+              500: [(1, 0.9)]
               }
+    '''
+    replay = {'probabilities': [0.9, 0.7, 0.1, 0.3], 
+              250: [(0, 0.0)],
+              500: [(1, 0.0)]
+              }
+    #'''
     replay_env = mab.BernoulliReplayBandit(replay=replay)
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, threshold=0.10, n=20)
+    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=30)
 
     # Build session
     replay_session = mab.Session(replay_env, [ts, dynamic_ts, sw_ts, my_ts])
@@ -191,7 +199,8 @@ if __name__ == "__main__":
     
     #stationary_bernoulli()
     #non_stationary_bernoulli()
+    
     #non_stationary_bernoulli_paper()
-    #multiple_env()
-
-    non_stationary_bernoulli_custom()
+    
+    multiple_env()
+    #non_stationary_bernoulli_custom()
