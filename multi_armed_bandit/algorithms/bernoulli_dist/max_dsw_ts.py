@@ -7,7 +7,7 @@ from typing import Dict
 from . import BernoulliAlgo
 
 
-class MyBernoulliTS(BernoulliAlgo):
+class MaxDSWTS(BernoulliAlgo):
 
     _last_reward_trace: Dict
     _tmp_betas: np.ndarray
@@ -22,7 +22,7 @@ class MyBernoulliTS(BernoulliAlgo):
         self._gamma = gamma
 
     def __repr__(self):
-        return "My Thompson Sampling Bernoulli"
+        return "Max d-sw TS Bernoulli"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._betas *= self._gamma
