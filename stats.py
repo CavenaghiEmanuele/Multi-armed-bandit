@@ -47,7 +47,7 @@ def non_stationary_bernoulli():
     ts = mab.BernoulliThompsonSampling(n_arms)
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.99)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.99, n=30)
+    my_ts = mab.MaxDSWTS(n_arms, gamma=0.99, n=30)
     
     # Build session
     replay_session = mab.Session(replay_env, [greedy, ts, dynamic_ts, sw_ts, my_ts])
@@ -80,7 +80,7 @@ def non_stationary_bernoulli_paper():
     ts = mab.BernoulliThompsonSampling(n_arms)
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=30)
+    my_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=30)
 
     
     # Build session
@@ -100,17 +100,16 @@ def non_stationary_bernoulli_paper():
 
 
 def multiple_env():
-    n_arms = 5
+    n_arms = 4
     n_step = 1000
     n_test = 30
-    n_envs = 1000
+    n_envs = 10
 
     rewards = {"Oracle": 0,
-               "Greedy Bernoulli": 0,
                "Thompson Sampling Bernoulli": 0,
                "Dynamic Thompson Sampling Bernoulli": 0,
                "Sliding Window Thompson Sampling Bernoulli": 0,
-               "My Thompson Sampling Bernoulli": 0
+               "Max d-sw TS Bernoulli": 0
                }
 
     parms = [(n_arms, n_step, n_test) for _ in range(n_envs)]
@@ -136,12 +135,11 @@ def launch_session(n_arms, n_step, n_test):
     session.run(n_step=n_step)
 
     # Build Agents
-    greedy = mab.BernoulliGreedy(n_arms)
     ts = mab.BernoulliThompsonSampling(n_arms)
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=20)
-    agents = [greedy, ts, dynamic_ts, sw_ts, my_ts]
+    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
+    agents = [ts, dynamic_ts, sw_ts, max_dsw_ts]
 
     # Build Env with replay
     replay_env = mab.BernoulliReplayBandit(replay=env.get_replay())
@@ -160,12 +158,14 @@ def non_stationary_bernoulli_custom():
     n_arms = 4
     # Build environment
     
+    replay = {'probabilities': [0.2, 0.3, 0.4, 0.5]
+              }
     '''
     replay = {'probabilities': [0.0, 0.0, 0.1, 0.3], 
               250: [(0, 0.7)],
               500: [(1, 0.9)]
               }
-    '''
+    ''''''
     replay = {'probabilities': [0.9, 0.7, 0.1, 0.3], 
               250: [(0, 0.0)],
               500: [(1, 0.0)]
@@ -177,20 +177,16 @@ def non_stationary_bernoulli_custom():
     ts = mab.BernoulliThompsonSampling(n_arms)
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=30)
+    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=30)
 
     # Build session
-    replay_session = mab.Session(replay_env, [ts, dynamic_ts, sw_ts, my_ts])
+    replay_session = mab.Session(replay_env, [ts, dynamic_ts, sw_ts, max_dsw_ts])
     
     # Run session
-    replay_session.run(n_step=1000, n_test=100, use_replay=True)
+    replay_session.run(n_step=1000, n_test=1000, use_replay=True)
     
     #Plot results
     replay_env.plot_arms(render=False)
-    #ts.plot_estimates(render=False)
-    dynamic_ts.plot_estimates(render=False)
-    sw_ts.plot_estimates(render=False)
-    my_ts.plot_estimates(render=False)
     replay_session.plot_all(render=False)
     plt.show()
 
