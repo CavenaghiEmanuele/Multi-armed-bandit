@@ -103,7 +103,7 @@ def multiple_env():
     n_arms = 4
     n_step = 1000
     n_test = 30
-    n_envs = 10
+    n_envs = 1000
 
     rewards = {"Oracle": 0,
                "Thompson Sampling Bernoulli": 0,
@@ -128,7 +128,7 @@ def multiple_env():
 
 def launch_session(n_arms, n_step, n_test):
     # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.003, fixed_action_prob=0.0, save_replay=True)
+    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.002, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
@@ -158,14 +158,17 @@ def non_stationary_bernoulli_custom():
     n_arms = 4
     # Build environment
     
+    # TEST 3
     replay = {'probabilities': [0.2, 0.3, 0.4, 0.5]
               }
     '''
+    # TEST 2
     replay = {'probabilities': [0.0, 0.0, 0.1, 0.3], 
               250: [(0, 0.7)],
               500: [(1, 0.9)]
               }
     ''''''
+    # TEST 1
     replay = {'probabilities': [0.9, 0.7, 0.1, 0.3], 
               250: [(0, 0.0)],
               500: [(1, 0.0)]
@@ -178,12 +181,28 @@ def non_stationary_bernoulli_custom():
     dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
     max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=30)
+    agents = [ts, dynamic_ts, sw_ts, max_dsw_ts]
 
     # Build session
-    replay_session = mab.Session(replay_env, [ts, dynamic_ts, sw_ts, max_dsw_ts])
+    replay_session = mab.Session(replay_env, agents)
     
     # Run session
     replay_session.run(n_step=1000, n_test=1000, use_replay=True)
+    
+    
+    for agent in agents:
+        print(agent, agent.get_id())
+    
+    f = open('test3_regret.txt', 'x')
+    f.write(str(replay_session._regrets))
+    f.close()
+    
+    g = open('test3_sum_reward.txt', 'x')
+    g.write(str(replay_session._real_reward_trace))
+    g.close()
+    
+
+    
     
     #Plot results
     replay_env.plot_arms(render=False)
