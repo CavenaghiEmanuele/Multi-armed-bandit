@@ -4,7 +4,6 @@ import pandas as pd
 import multi_armed_bandit as mab
 import matplotlib.pyplot as plt
 
-from numpy import loadtxt
 from statistics import mean
     
     
@@ -63,7 +62,7 @@ if __name__ == '__main__':
     
     ######## PARAMETERS #########
     day = 6
-    steps_for_hour = 60
+    steps_for_hour = 1
     clusters = 6
     ############################
     hours = 23
@@ -88,5 +87,9 @@ if __name__ == '__main__':
     #Plot results
     env.plot_arms(render=False)
     session.plot_all(render=False)
+    #ts.plot_estimates()
+    #dynamic_ts.plot_estimates()
+    #sw_ts.plot_estimates()
+    #my_ts.plot_estimates()
     plt.show()
     
