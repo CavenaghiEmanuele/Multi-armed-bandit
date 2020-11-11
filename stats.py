@@ -82,7 +82,6 @@ def non_stationary_bernoulli_paper():
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
     my_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=30)
 
-    
     # Build session
     replay_session = mab.Session(replay_env, [ts, dynamic_ts, sw_ts, my_ts])
     
