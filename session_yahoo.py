@@ -6,91 +6,105 @@ import numpy as np
 import multi_armed_bandit as mab
 
 from multiprocessing import Pool, cpu_count
-from typing import List, Dict
+from typing import Dict, List
 from tqdm import trange
 
 
-def select_cluster(step:int, dataset, clusters):
-    row = dataset.loc[step]
-    click = dataset.loc[step]['click']
-    cluster = clusters.loc[clusters['id_article']==row['id_article']]['cluster'].values[0]        
-    return cluster, click
+class YahooSession():
 
-def plot_reward_trace(n_test, n_step, results):
-    traces = {str(agent): np.zeros(n_step) for agent in results[0]}
+    _dataset: pd.DataFrame
+    _clusters: pd.DataFrame
+    _id_articles: List
+    _n_step: int
+    _n_test: int
+    _n_arms: int
+    _compression: int
 
-    for result in results:
-        for agent in result:
-            traces[str(agent)] = traces[str(agent)] + result[agent]    
-    
-    plt.figure()
-    for agent in traces:
-        plt.plot(traces[agent], label=agent)
-    plt.suptitle("Rewards trace")
-    plt.legend()
-    plt.show()
+    def __init__(self, day:int, n_arms:int, n_test:int=1, compression:int=1) -> None:
 
-    return
-
-def run(n_arms, n_step, dataset, clusters, agent_list) -> Dict:
-    np.random.seed()
-    reward_trace = {agent: [0] for agent in agent_list}
-        
-    for step in trange(n_step):
-        for agent in agent_list:
-            #action = agent.select_action()
-            action = random.randint(6)
-            cluster, click = select_cluster(step, dataset, clusters)
-
-            if (cluster == action) and (click == 1): reward = 1
-            else: reward = 0
-
-            # Update statistics
-            reward_trace[agent].append(reward_trace[agent][-1] + reward)
-
-            #Update agent estimates
-            agent.update_estimates(action, reward)
-
-    return reward_trace
-
-
-if __name__ == "__main__":
-    
-    ########## PARAMETERS ############
-    n_arms = 6 # Six clusters are created
-    n_test = 16
-    day = 1
-    
-    ########## LOAD FILES ###########
-    filenames = [
+        filenames = [
             "ydata-fp-td-clicks-v1_0.20090501.csv", "ydata-fp-td-clicks-v1_0.20090502.csv", "ydata-fp-td-clicks-v1_0.20090503.csv",
             "ydata-fp-td-clicks-v1_0.20090504.csv", "ydata-fp-td-clicks-v1_0.20090505.csv", "ydata-fp-td-clicks-v1_0.20090506.csv",
             "ydata-fp-td-clicks-v1_0.20090507.csv", "ydata-fp-td-clicks-v1_0.20090508.csv", "ydata-fp-td-clicks-v1_0.20090509.csv",
             "ydata-fp-td-clicks-v1_0.20090510.csv",
         ]
-    path = '/home/emanuele/GoogleDrive/Thompson Sampling/yahoo_dataset/'
-    
-    dataset = pd.read_csv("/media/emanuele/860EFA500EFA392F/Dataset Yahoo!/R6/Dataset Yahoo modified/" + filenames[day-1])
-    clusters = pd.read_csv(path + 'clusters_6.csv')
-    with open(path + 'day' + str(day) + '/id_articles.txt', "rb") as fp:
-        id_articles = pickle.load(fp)    
-    n_step = len(dataset.index)
+        path = '/home/emanuele/GoogleDrive/Thompson Sampling/yahoo_dataset/'
 
-    ########## BUILD AGENTS ###########
-    max_dsw_ts = mab.MaxDSWTS(n_arms=n_arms, gamma=0.98, n=20)
-    ts = mab.BernoulliThompsonSampling(n_arms=n_arms)
-    sw_ts = mab.BernoulliSlidingWindowTS(n_arms=n_arms, n=75)
-    d_ts = mab.DynamicBernoulliTS(n_arms=n_arms, gamma=0.98)
-    agent_list = [max_dsw_ts, ts, sw_ts, d_ts]
+        self._dataset = pd.read_csv("/media/emanuele/860EFA500EFA392F/Dataset Yahoo!/R6/Dataset Yahoo modified/" + filenames[day-1])
+        self._clusters = pd.read_csv(path + 'clusters_6.csv')
+        with open(path + 'day' + str(day) + '/id_articles.txt', "rb") as fp:
+            self._id_articles = pickle.load(fp)
+        self._n_step = len(self._dataset.index)
+        self._n_test = n_test
+        self._n_arms = n_arms
+        self._compression = compression
 
-    ########## RUN ENVS ###########
-    parms = [(n_arms, n_step, dataset, clusters, agent_list) for _ in range(n_test)]
+    def select_cluster(self, step:int):
+        row = self._dataset.loc[step]
+        click = self._dataset.loc[step]['click']
+        cluster = self._clusters.loc[self._clusters['id_article']==row['id_article']]['cluster'].values[0]        
+        return cluster, click
 
-    pool = Pool(cpu_count())
-    results = pool.starmap(run, parms)
-    pool.close()
-    pool.join()
-    
-    ########## PLOT ###########
-    plot_reward_trace(n_test, n_step-1, results)
-    
+    def plot_reward_trace(self, results):
+        traces = {str(agent): np.zeros(len(results[0]['random'])) for agent in results[0]}
+
+        for result in results:
+            for agent in result:
+                traces[str(agent)] = traces[str(agent)] + result[agent]    
+        
+        plt.figure()
+        for agent in traces:
+            plt.plot(traces[agent], label=agent)
+        plt.suptitle("Rewards trace")
+        plt.legend()
+        plt.show()
+
+        return
+
+    def run(self) -> Dict:
+        pool = Pool(cpu_count())
+        results = pool.map(self._run, range(self._n_test))
+        pool.close()
+        pool.join()
+        return results
+
+    def _run(self, fake) -> Dict:
+        ########## BUILD AGENTS ###########
+        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.98, n=20, store_estimates=False)
+        ts = mab.BernoulliThompsonSampling(n_arms=self._n_arms, store_estimates=False)
+        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=75, store_estimates=False)
+        d_ts = mab.DynamicBernoulliTS(n_arms=self._n_arms, gamma=0.98, store_estimates=False)
+        agent_list = [max_dsw_ts, ts, sw_ts, d_ts, "random"]
+
+        np.random.seed()
+        c = self._compression
+        reward_trace = {agent: [0] for agent in agent_list}
+            
+        for step in trange(self._n_step):
+            for agent in agent_list:
+                if agent == "random": action = random.randint(6)
+                else: action = agent.select_action()
+                
+                cluster, click = self.select_cluster(step)
+
+                if (cluster == action) and (click == 1): reward = 1
+                else: reward = 0
+
+                # Update statistics
+                if step % c == 0:
+                    reward_trace[agent].append(reward_trace[agent][-1] + reward/c)
+                else:
+                    reward_trace[agent][-1] += reward/c
+
+                #Update agent estimates
+                if agent != "random":
+                    agent.update_estimates(action, reward)
+
+        return reward_trace
+
+
+if __name__ == "__main__":
+
+    #n_arms = 6 --> Six clusters are created
+    session = YahooSession(n_arms=6, n_test=10, compression=1000, day=1)
+    session.plot_reward_trace(session.run())
