@@ -11,8 +11,8 @@ class BernoulliUCB(BernoulliAlgo):
     _action_selection: List
     _c: float
 
-    def __init__(self, n_arms: int, c: float=1):
-        super().__init__(n_arms)
+    def __init__(self, n_arms: int, c: float=1, store_estimates:bool=True):
+        super().__init__(n_arms, store_estimates=store_estimates)
         self._action_taken = 0
         self._action_selection = [0 for _ in range(n_arms)]
         self._c = c

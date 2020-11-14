@@ -6,8 +6,8 @@ from numpy.random import beta
 
 class BernoulliThompsonSampling(BernoulliAlgo):
 
-    def __init__(self, n_arms: int):
-        super().__init__(n_arms)
+    def __init__(self, n_arms: int, store_estimates:bool=True):
+        super().__init__(n_arms, store_estimates=store_estimates)
     
     def __repr__(self):
         return "Thompson Sampling Bernoulli"

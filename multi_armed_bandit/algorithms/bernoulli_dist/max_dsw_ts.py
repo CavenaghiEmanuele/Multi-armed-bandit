@@ -14,8 +14,8 @@ class MaxDSWTS(BernoulliAlgo):
     _n: int
     _gamma: float
 
-    def __init__(self, n_arms: int, gamma: float = 0.9, n: int = 30):
-        super().__init__(n_arms=n_arms)
+    def __init__(self, n_arms: int, gamma: float = 0.9, n: int = 30, store_estimates:bool=True):
+        super().__init__(n_arms=n_arms, store_estimates=store_estimates)
         self._last_reward_trace = {a : [] for a in range(n_arms)}
         self._tmp_betas = np.ones(shape=(n_arms, 2))
         self._n = n
@@ -28,8 +28,9 @@ class MaxDSWTS(BernoulliAlgo):
         self._betas *= self._gamma
         self.update_tmp_betas(action, reward)
         self._betas[action][reward] += 1
-        for a in range(self._n_arms):
-            self._mean_trace[a].append(self._betas[a][1] / (self._betas[a][1] + self._betas[a][0]))
+        if self._store_estimates:
+            for a in range(self._n_arms):
+                self._mean_trace[a].append(self._betas[a][1] / (self._betas[a][1] + self._betas[a][0]))
 
     def update_tmp_betas(self, action: int, reward: int):
         if len(self._last_reward_trace[action]) >= self._n:

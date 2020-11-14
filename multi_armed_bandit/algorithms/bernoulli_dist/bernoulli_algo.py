@@ -11,11 +11,13 @@ class BernoulliAlgo(Algorithm, ABC):
 
     _betas: np.ndarray
     _mean_trace: Dict
+    _store_estimates: bool
 
-    def __init__(self, n_arms: int):
+    def __init__(self, n_arms: int, store_estimates:bool=True):
         super().__init__(n_arms=n_arms)
         self._betas = np.ones(shape=(n_arms, 2))
         self._mean_trace = {action : [1/2] for action in range(n_arms)}
+        self._store_estimates = store_estimates
 
     def reset_agent(self):
         self._betas = np.ones(shape=(self._n_arms, 2))
@@ -26,8 +28,9 @@ class BernoulliAlgo(Algorithm, ABC):
             self._betas[action][1] += 1  # Update beta
         else:  # Reward == 1
             self._betas[action][0] += 1  # Update alpha
-        for a in range(self._n_arms):
-            self._mean_trace[a].append(self._betas[a][0] / (self._betas[a][0] + self._betas[a][1]))
+        if self._store_estimates:
+            for a in range(self._n_arms):
+                self._mean_trace[a].append(self._betas[a][0] / (self._betas[a][0] + self._betas[a][1]))
 
     def plot_estimates(self, render: bool = True):
         fig = plt.figure()
