@@ -5,3 +5,5 @@ from .bernoulli_ucb import BernoulliUCB
 from .dynamic_bernoulli_ts import DynamicBernoulliTS
 from .bernoulli_sw_ts import BernoulliSlidingWindowTS
 from .max_dsw_ts import MaxDSWTS
+from .min_dsw_ts import MinDSWTS
+from .mean_dsw_ts import MeanDSWTS
