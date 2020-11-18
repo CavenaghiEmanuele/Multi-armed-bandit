@@ -28,17 +28,17 @@ class Session():
     def run(self, n_step: int, n_test: int = 1, use_replay: bool = False) -> None:
         
         # Save statistics
-        self._regrets = {agent.get_id(): np.zeros(n_step) for agent in self._agents}
+        self._regrets = {agent: np.zeros(n_step) for agent in self._agents}
 
-        self._real_reward_trace = {agent.get_id(): np.zeros(n_step) for agent in self._agents}
+        self._real_reward_trace = {agent: np.zeros(n_step) for agent in self._agents}
         self._real_reward_trace.update({"Oracle": np.zeros(n_step)})
 
-        self._action_selection_trace = {agent.get_id(): {a:np.zeros(n_step) for a in range(self._env.get_n_arms())} for agent in self._agents}
+        self._action_selection_trace = {agent: {a:np.zeros(n_step) for a in range(self._env.get_n_arms())} for agent in self._agents}
         
         for test in trange(n_test):
-            self._real_reward = {agent.get_id(): 0 for agent in self._agents}
+            self._real_reward = {agent: 0 for agent in self._agents}
             self._real_reward.update({"Oracle": 0})
-            self._action_selection = {agent.get_id(): {a : 0 for a in range(self._env.get_n_arms())} for agent in self._agents}
+            self._action_selection = {agent: {a : 0 for a in range(self._env.get_n_arms())} for agent in self._agents}
             
             for step in range(n_step):
                 # Oracle
@@ -49,7 +49,7 @@ class Session():
                     action = agent.select_action()
                     reward = self._env.do_action(action)
                     agent.update_estimates(action, reward)    
-                    self._update_statistic(test=test, step=step, id_agent=agent.get_id(), action=action)
+                    self._update_statistic(test=test, step=step, id_agent=agent, action=action)
 
                 if isinstance(self._env, DynamicMultiArmedBandit):
                     self._env.change_action_prob(step=step)
@@ -81,7 +81,7 @@ class Session():
     def plot_regret(self, render: bool=True):
         plt.figure()
         for agent in self._agents:
-            plt.plot(self._regrets[agent.get_id()], label=agent)
+            plt.plot(self._regrets[agent], label=agent)
         plt.suptitle("Regret")
         plt.legend()
         if render:
@@ -92,7 +92,7 @@ class Session():
             fig, axs = plt.subplots(len(self._agents), sharey=True)
             for i, agent in enumerate(self._agents):
                 for action in range(self._env.get_n_arms()):
-                    axs[i].plot(self._action_selection_trace[agent.get_id()][action], label="Action: " + str(action))
+                    axs[i].plot(self._action_selection_trace[agent][action], label="Action: " + str(action))
                     axs[i].set_title("Action selection: " + str(agent))
                     axs[i].legend()
                 fig.suptitle("Action selection")
@@ -100,7 +100,7 @@ class Session():
             fig = plt.figure()
             agent = self._agents[0]
             for action in range(self._env.get_n_arms()):
-                plt.plot(self._action_selection_trace[agent.get_id()][action], label="Action: " + str(action))
+                plt.plot(self._action_selection_trace[agent][action], label="Action: " + str(action))
                 plt.legend()
             plt.suptitle("Action selection")
         
@@ -111,7 +111,7 @@ class Session():
         plt.figure()
         plt.plot(self._real_reward_trace["Oracle"], label="Oracle")
         for agent in self._agents:
-            plt.plot(self._real_reward_trace[agent.get_id()], label=agent)
+            plt.plot(self._real_reward_trace[agent], label=agent)
         plt.suptitle("Real rewards sum")
         plt.legend()
         if render:
@@ -127,4 +127,4 @@ class Session():
     def get_reward_sum(self, agent: Algorithm):
         if agent == "Oracle":
             return self._real_reward_trace["Oracle"][-1]
-        return self._real_reward_trace[agent.get_id()][-1]
+        return self._real_reward_trace[agent][-1]
