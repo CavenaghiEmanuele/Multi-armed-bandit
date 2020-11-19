@@ -1,9 +1,13 @@
+from pickle import NONE, TRUE
+from multi_armed_bandit.algorithms.bernoulli_dist import mean_dsw_ts
+from multi_armed_bandit.algorithms.bernoulli_dist import min_dsw_ts
 import matplotlib.pyplot as plt
 from numpy import random
 import pandas as pd
 import pickle
 import numpy as np
 import multi_armed_bandit as mab
+from numpy.core.fromnumeric import mean
 
 from multiprocessing import Pool, cpu_count
 from typing import Dict, List
@@ -61,24 +65,68 @@ class YahooSession():
 
         return
 
+    def save_reward_trace_to_csv(self, results, day) -> None:
+        dataset = pd.DataFrame()
+        for i in range(len(results)):            
+            dataset = pd.concat([dataset, pd.DataFrame.from_dict(results[i])], axis=1)
+        dataset.to_csv("results/Yahoo/reward_trace_day" + str(day) + ".csv")
+    
+    def save_reward_perc_to_csv(self, results, day) -> None:
+        
+        tmp = {str(agent):[] for agent in results[0]}
+        for i in range(len(results)):
+            for key, value in results[i].items():
+                tmp[str(key)].append(value)
+                   
+        dataset = pd.DataFrame.from_dict(tmp)        
+        dataset.to_csv("results/Yahoo/reward_perc_day" + str(day) + ".csv")
+
+    def plot_from_csv(self, day, grayscale:bool=False) -> None:
+        path = 'results/Yahoo/reward_trace_day' + str(day) + '.csv'
+        dataset = pd.read_csv(path)
+        dataset = dataset.drop('Unnamed: 0', 1)
+        dataset = dataset.add_suffix('')
+        
+        agent_list = ['Max d-sw TS Bernoulli', 'Min d-sw TS Bernoulli', 'Mean d-sw TS Bernoulli',
+                  'Thompson Sampling Bernoulli', 'Sliding Window Thompson Sampling Bernoulli',
+                  'Discounted Thompson Sampling Bernoulli', 'random']
+        suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
+        
+        if grayscale:
+            plt.style.use('grayscale')
+        
+        for agent in agent_list:
+            plt.plot(np.mean([dataset[agent + suffix].values for suffix in suffix_list], axis=0), label=agent, linewidth=3)      
+
+        plt.title('Reward trace', fontsize=24)
+        plt.grid()
+        plt.legend(prop={'size': 24})
+        plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
+
+        plt.show()
+        
+        
     def run(self) -> Dict:
         pool = Pool(cpu_count())
         results = pool.map(self._run, range(self._n_test))
         pool.close()
         pool.join()
-        return results
+        return results # (Reward_trace, reward_percentual)
 
     def _run(self, fake) -> Dict:
         ########## BUILD AGENTS ###########
         max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.9999, n=2000, store_estimates=False)
+        min_dsw_ts = mab.MinDSWTS(n_arms=self._n_arms, gamma=0.9999, n=2000, store_estimates=False)
+        mean_dsw_ts = mab.MeanDSWTS(n_arms=self._n_arms, gamma=0.9999, n=2000, store_estimates=False)        
         ts = mab.BernoulliThompsonSampling(n_arms=self._n_arms, store_estimates=False)
         sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=7500, store_estimates=False)
         d_ts = mab.DiscountedBernoulliTS(n_arms=self._n_arms, gamma=0.9999, store_estimates=False)
-        agent_list = [max_dsw_ts, ts, sw_ts, d_ts, "random"]
+        agent_list = [max_dsw_ts, min_dsw_ts, mean_dsw_ts, ts, sw_ts, d_ts, "random"]
 
         np.random.seed()
         c = self._compression
         reward_trace = {agent: [0] for agent in agent_list}
+        reward_sum = {agent: 0 for agent in agent_list}
             
         for step in trange(self._n_step):
             for agent in agent_list:
@@ -91,6 +139,7 @@ class YahooSession():
                 else: reward = 0
 
                 # Update statistics
+                reward_sum[agent] += reward
                 if step % c == 0:
                     reward_trace[agent].append(reward_trace[agent][-1] + reward/c)
                 else:
@@ -100,11 +149,25 @@ class YahooSession():
                 if agent != "random":
                     agent.update_estimates(action, reward)
 
-        return reward_trace
+        for agent in agent_list:
+            reward_sum[agent] /= self._n_step
+        return (reward_trace, reward_sum)
 
 
 if __name__ == "__main__":
 
+    day = 2
     #n_arms = 6 --> Six clusters are created
-    session = YahooSession(n_arms=6, n_test=10, compression=1000, day=9)
-    session.plot_reward_trace(session.run())
+    session = YahooSession(n_arms=6, n_test=10, compression=1000, day=day)
+    
+    results = session.run()
+    reward_trace = [item[0] for item in results]
+    reward_perc = [item[1] for item in results]
+
+    session.save_reward_trace_to_csv(reward_trace, day)
+    session.save_reward_perc_to_csv(reward_perc, day)
+    
+    session.plot_reward_trace(reward_trace)
+    '''
+    session.plot_from_csv(day=day, grayscale=False)
+    '''
