@@ -8,9 +8,9 @@ def test_bernoulli_algorithms():
     greedy_agent = mab.BernoulliGreedy(n_arms)    
     ts_agent = mab.BernoulliThompsonSampling(n_arms)
     ucb_agent = mab.BernoulliUCB(n_arms, c=1)
-    dynamic_ts_agent = mab.DynamicBernoulliTS(n_arms, gamma=0.99)
+    Discounted_ts_agent = mab.DiscountedBernoulliTS(n_arms, gamma=0.99)
  
-    session = mab.Session(env, [greedy_agent, ts_agent, ucb_agent, dynamic_ts_agent])
+    session = mab.Session(env, [greedy_agent, ts_agent, ucb_agent, Discounted_ts_agent])
     session.run(3000)
     '''
     env.plot_arms(render=False)

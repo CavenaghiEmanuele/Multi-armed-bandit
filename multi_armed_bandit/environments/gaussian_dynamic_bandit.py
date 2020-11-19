@@ -4,15 +4,15 @@ from numpy.random import uniform, normal
 from typing import List
 from copy import deepcopy
 
-from . import GaussianBandit, DynamicMultiArmedBandit
+from . import GaussianBandit, DiscountedMultiArmedBandit
 
 
-class GaussianDynamicBandit(DynamicMultiArmedBandit, GaussianBandit):
+class GaussianDiscountedBandit(DiscountedMultiArmedBandit, GaussianBandit):
 
     def __init__(self, n_arms: int, mean: List[float] = None, std_dev: List[float] = None,
                  prob_of_change: float = 0.001, fixed_action_prob: float = None, save_replay: bool = False):
 
-        DynamicMultiArmedBandit.__init__(self, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=fixed_action_prob, save_replay=save_replay)
+        DiscountedMultiArmedBandit.__init__(self, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=fixed_action_prob, save_replay=save_replay)
         GaussianBandit.__init__(self, n_arms=n_arms,
                                 mean=mean, std_dev=std_dev)
 

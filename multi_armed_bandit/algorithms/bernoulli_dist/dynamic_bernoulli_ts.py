@@ -9,7 +9,7 @@ from . import BernoulliAlgo
 '''
 From Paper: "Taming Non-stationary Bandits: A Bayesian Approach"
 '''
-class DynamicBernoulliTS(BernoulliAlgo):
+class DiscountedBernoulliTS(BernoulliAlgo):
 
     _alpha_0: float
     _beta_0: float
@@ -22,7 +22,7 @@ class DynamicBernoulliTS(BernoulliAlgo):
         self._gamma = gamma
 
     def __repr__(self):
-        return "Dynamic Thompson Sampling Bernoulli"
+        return "Discounted Thompson Sampling Bernoulli"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._betas *= self._gamma

@@ -5,7 +5,7 @@ from typing import List, Dict
 from .multi_armed_bandit import MultiArmedBandit
 
 
-class DynamicMultiArmedBandit(MultiArmedBandit, ABC):
+class DiscountedMultiArmedBandit(MultiArmedBandit, ABC):
 
     _prob_of_change: float
     _action_value_trace: Dict

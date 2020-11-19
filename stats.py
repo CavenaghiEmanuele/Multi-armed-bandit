@@ -2,6 +2,7 @@ import multi_armed_bandit as mab
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 from multiprocessing import Pool, cpu_count
 from typing import Dict, Tuple
@@ -35,12 +36,12 @@ def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
+    Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
     max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
     min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
     mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
-    agents = [ts, dynamic_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
+    agents = [ts, Discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build session
     replay_session = mab.Session(replay_env, agents)
@@ -56,7 +57,7 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
     for prob_of_change in [0.001, 0.002, 0.003, 0.004, 0.005, 0.01, 0.015, 0.02]:
         rewards = {"Oracle": 0,
                 "Thompson Sampling Bernoulli": 0,
-                "Dynamic Thompson Sampling Bernoulli": 0,
+                "Discounted Thompson Sampling Bernoulli": 0,
                 "Sliding Window Thompson Sampling Bernoulli": 0,
                 "Max d-sw TS Bernoulli": 0,
                 "Min d-sw TS Bernoulli": 0,
@@ -75,15 +76,16 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
 
     return pd.DataFrame.from_dict(results, orient='index', columns=["Oracle",
                                                                     "Thompson Sampling Bernoulli",
-                                                                    "Dynamic Thompson Sampling Bernoulli",
+                                                                    "Discounted Thompson Sampling Bernoulli",
                                                                     "Sliding Window Thompson Sampling Bernoulli",
                                                                     "Max d-sw TS Bernoulli",
                                                                     "Min d-sw TS Bernoulli",
                                                                     "Mean d-sw TS Bernoulli"])
 
 def _multiple_env(n_arms, n_step, n_test, prob_of_change):
+    np.random.seed()
     # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
+    env = mab.BernoulliDiscountedBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
@@ -91,12 +93,12 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change):
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
+    Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
     max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
     min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
     mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
-    agents = [ts, dynamic_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
+    agents = [ts, Discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build Env with replay
     replay_env = mab.BernoulliReplayBandit(replay=env.get_replay())
@@ -138,8 +140,9 @@ def min_max_mean_comparison(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()
                                                                        "Mean d-sw TS Bernoulli"])
 
 def _min_max_comparison(n_arms, n_step, n_test, prob_of_change):
+    np.random.seed()
     # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
+    env = mab.BernoulliDiscountedBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
@@ -164,25 +167,46 @@ def _min_max_comparison(n_arms, n_step, n_test, prob_of_change):
     return results
 
 
+def plot_regret_from_file(test_number):
+    
+    path = 'tmp/custom_test_' + str(test_number) + '_regret.csv'
+    dataset = pd.read_csv(path)
+    dataset = dataset.drop('Unnamed: 0', 1)
+    
+    plt.style.use('grayscale')
+    dataset.plot(linewidth=3)
+      
+    plt.xlim(-10, 1010)
+    plt.ylim(-0.01, 0.71)
+    plt.legend(prop={'size': 24})
+    plt.subplots_adjust(left=0.02, right=0.98, top=0.97, bottom=0.03)
+
+    plt.show()
+
+    return
+
 if __name__ == "__main__":
     
     n_arms = 4
-    n_step = 100 #1000
-    n_test = 3 #30
-    n_envs = 10 #1000
-    
+    n_step = 1000
+    n_test = 30
+    n_envs = 1000
+
     '''
-    result = multiple_env(n_arms, n_step, n_test, n_envs, cpus=4)
+    result = multiple_env(n_arms, n_step, n_test, n_envs, cpus=15)
     result.to_csv("results/Multiple_env.csv")
     '''
     '''
-    result = min_max_mean_comparison(n_arms, n_step, n_test, n_envs, cpus=4)
+    result = min_max_mean_comparison(n_arms, n_step, n_test, n_envs)
     result.to_csv("results/dsw_ts_comparison.csv")
     '''
     
     test_number = 1
-    regret, real_reward_trace = custom_environments(n_arms, n_test=10 ,test_number=test_number)
+    '''
+    regret, real_reward_trace = custom_environments(n_arms, n_test=10, test_number=test_number)
     regret.to_csv("results/custom_test_" + str(test_number) + "_regret.csv")
     real_reward_trace.to_csv("results/custom_test_" + str(test_number) + "_real_reward_trace.csv")
-    
+    '''
 
+    plot_regret_from_file(test_number=test_number)
+     

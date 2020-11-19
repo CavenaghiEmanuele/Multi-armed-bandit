@@ -4,15 +4,15 @@ from numpy.random import uniform, binomial
 from typing import List
 from copy import deepcopy
 
-from . import BernoulliBandit, DynamicMultiArmedBandit
+from . import BernoulliBandit, DiscountedMultiArmedBandit
 
 
-class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
+class BernoulliDiscountedBandit(DiscountedMultiArmedBandit, BernoulliBandit):
 
     def __init__(self, n_arms: int, probabilities: List[float] = None, 
                  prob_of_change: float = 0.001, fixed_action_prob: float = None, save_replay: bool = False):
         
-        DynamicMultiArmedBandit.__init__(self, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=fixed_action_prob, save_replay=save_replay)
+        DiscountedMultiArmedBandit.__init__(self, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=fixed_action_prob, save_replay=save_replay)
         BernoulliBandit.__init__(self, n_arms=n_arms, probabilities=probabilities)
         
         self._action_value_trace = {a:[self._probabilities[a]] for a in range(n_arms)}

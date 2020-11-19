@@ -12,20 +12,20 @@ def test_bernoulli_bandit():
     bandit = mab.BernoulliBandit(n_arms=3, probabilities=probabilities)
     #bandit.plot_arms()
 
-def test_bernoulli_dynamic_bandit():
-    env = mab.BernoulliDynamicBandit(n_arms=5, prob_of_change=0.0005, fixed_action_prob=0.2)
+def test_bernoulli_Discounted_bandit():
+    env = mab.BernoulliDiscountedBandit(n_arms=5, prob_of_change=0.0005, fixed_action_prob=0.2)
     session = mab.Session(env=env, agent=[])
     session.run(n_step=1000)
     #env.plot_arms(render=True)
 
-def test_gaussian_dynamic_bandit():
-    env = mab.GaussianDynamicBandit(n_arms=5, prob_of_change=0.0005, fixed_action_prob=0.2)
+def test_gaussian_Discounted_bandit():
+    env = mab.GaussianDiscountedBandit(n_arms=5, prob_of_change=0.0005, fixed_action_prob=0.2)
     session = mab.Session(env=env, agent=[])
     session.run(n_step=1000)
     #env.plot_arms(render=True)
 
 def test_bernoulli_replay_bandit():
-    env = mab.BernoulliDynamicBandit(n_arms=5, prob_of_change=0.001, fixed_action_prob=0.2, save_replay=True)
+    env = mab.BernoulliDiscountedBandit(n_arms=5, prob_of_change=0.001, fixed_action_prob=0.2, save_replay=True)
     # Generate replay
     session = mab.Session(env, [])
     session.run(n_step=3000)
@@ -36,7 +36,7 @@ def test_bernoulli_replay_bandit():
     #replay_env.plot_arms(render=True)
 
 def test_gaussian_replay_bandit():
-    env = mab.GaussianDynamicBandit(n_arms=5, prob_of_change=0.001, fixed_action_prob=0.2, save_replay=True)
+    env = mab.GaussianDiscountedBandit(n_arms=5, prob_of_change=0.001, fixed_action_prob=0.2, save_replay=True)
     # Generate replay
     session = mab.Session(env, [])
     session.run(n_step=3000)

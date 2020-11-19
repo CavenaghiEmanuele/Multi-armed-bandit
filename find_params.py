@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 
 def launch_session(n_arms, n_step, n_test):
     # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.002, fixed_action_prob=0.0, save_replay=True)
+    env = mab.BernoulliDiscountedBandit(n_arms, prob_of_change=0.002, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
     session.run(n_step=n_step)
 
     # Build Agents
-    #dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.98)
+    #Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
     #sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
     my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=20)
     agents = [my_ts]
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     rewards = {"Oracle": 0,
                "Greedy Bernoulli": 0,
                "Thompson Sampling Bernoulli": 0,
-               "Dynamic Thompson Sampling Bernoulli": 0,
+               "Discounted Thompson Sampling Bernoulli": 0,
                "Sliding Window Thompson Sampling Bernoulli": 0,
                "My Thompson Sampling Bernoulli": 0
                }

@@ -2,16 +2,16 @@ import numpy as np
 from typing import Dict
 from copy import deepcopy
 
-from . import GaussianDynamicBandit
+from . import GaussianDiscountedBandit
 
 
-class GaussianReplayBandit(GaussianDynamicBandit):
+class GaussianReplayBandit(GaussianDiscountedBandit):
 
     _replay: Dict
 
     def __init__(self, replay: Dict):
         self._replay = deepcopy(replay)
-        GaussianDynamicBandit.__init__(self, n_arms=len(replay["mean"]), mean=replay["mean"], std_dev=replay["std_dev"])
+        GaussianDiscountedBandit.__init__(self, n_arms=len(replay["mean"]), mean=replay["mean"], std_dev=replay["std_dev"])
         
     def reset_to_start(self):
         self._mean = deepcopy(self._replay["mean"])

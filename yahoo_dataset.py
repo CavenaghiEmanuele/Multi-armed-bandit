@@ -61,7 +61,7 @@ def build_env(day: int, steps_for_hour: int=1, clusters: int=0):
 if __name__ == '__main__':
     
     ######## PARAMETERS #########
-    day = 6
+    day = 2
     steps_for_hour = 1
     clusters = 6
     ############################
@@ -74,21 +74,22 @@ if __name__ == '__main__':
     
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    dynamic_ts = mab.DynamicBernoulliTS(n_arms, gamma=0.70)
+    Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.70)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=30)
     my_ts = mab.MaxDSWTS(n_arms, gamma=0.70, n=10)
     
     # Build session
-    session = mab.Session(env, [ts, dynamic_ts, sw_ts, my_ts])
+    session = mab.Session(env, [ts, Discounted_ts, sw_ts, my_ts])
     
     # Run session
     session.run(n_step=(hours+1)*steps_for_hour, n_test=100, use_replay=True)
-    
+
     #Plot results
     env.plot_arms(render=False)
+    
     session.plot_all(render=False)
     #ts.plot_estimates()
-    #dynamic_ts.plot_estimates()
+    #Discounted_ts.plot_estimates()
     #sw_ts.plot_estimates()
     #my_ts.plot_estimates()
     plt.show()

@@ -70,10 +70,10 @@ class YahooSession():
 
     def _run(self, fake) -> Dict:
         ########## BUILD AGENTS ###########
-        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.98, n=20, store_estimates=False)
+        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.9999, n=2000, store_estimates=False)
         ts = mab.BernoulliThompsonSampling(n_arms=self._n_arms, store_estimates=False)
-        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=75, store_estimates=False)
-        d_ts = mab.DynamicBernoulliTS(n_arms=self._n_arms, gamma=0.98, store_estimates=False)
+        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=7500, store_estimates=False)
+        d_ts = mab.DiscountedBernoulliTS(n_arms=self._n_arms, gamma=0.9999, store_estimates=False)
         agent_list = [max_dsw_ts, ts, sw_ts, d_ts, "random"]
 
         np.random.seed()
@@ -106,5 +106,5 @@ class YahooSession():
 if __name__ == "__main__":
 
     #n_arms = 6 --> Six clusters are created
-    session = YahooSession(n_arms=6, n_test=10, compression=1000, day=1)
+    session = YahooSession(n_arms=6, n_test=10, compression=1000, day=9)
     session.plot_reward_trace(session.run())
