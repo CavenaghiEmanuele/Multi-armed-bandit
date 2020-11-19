@@ -2,7 +2,7 @@ from .bernoulli_algo import BernoulliAlgo
 from .bernoulli_greedy import BernoulliGreedy
 from .bernoulli_ts import BernoulliThompsonSampling
 from .bernoulli_ucb import BernoulliUCB
-from .Discounted_bernoulli_ts import DiscountedBernoulliTS
+from .discounted_bernoulli_ts import DiscountedBernoulliTS
 from .bernoulli_sw_ts import BernoulliSlidingWindowTS
 from .max_dsw_ts import MaxDSWTS
 from .min_dsw_ts import MinDSWTS

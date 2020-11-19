@@ -4,7 +4,7 @@ import numpy as np
 from typing import Dict, List
 from tqdm import trange
 
-from ..environments import MultiArmedBandit, DiscountedMultiArmedBandit
+from ..environments import MultiArmedBandit, DynamicMultiArmedBandit
 from ..algorithms import Algorithm
 
 
@@ -51,7 +51,7 @@ class Session():
                     agent.update_estimates(action, reward)    
                     self._update_statistic(test=test, step=step, id_agent=agent, action=action)
 
-                if isinstance(self._env, DiscountedMultiArmedBandit):
+                if isinstance(self._env, DynamicMultiArmedBandit):
                     self._env.change_action_prob(step=step)
             
             # Reset env and agent to start condition, then the changes will be those stored in the replay saved inside the env

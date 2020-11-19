@@ -2,16 +2,16 @@ import numpy as np
 from typing import Dict
 from copy import deepcopy
 
-from . import BernoulliDiscountedBandit
+from . import BernoulliDynamicBandit
 
 
-class BernoulliReplayBandit(BernoulliDiscountedBandit):
+class BernoulliReplayBandit(BernoulliDynamicBandit):
 
     _replay: Dict
 
     def __init__(self, replay: Dict):
         self._replay = deepcopy(replay)
-        BernoulliDiscountedBandit.__init__(self, n_arms=len(replay["probabilities"]), probabilities=replay["probabilities"])
+        BernoulliDynamicBandit.__init__(self, n_arms=len(replay["probabilities"]), probabilities=replay["probabilities"])
 
     def reset_to_start(self):
         self._probabilities = deepcopy(self._replay["probabilities"])
