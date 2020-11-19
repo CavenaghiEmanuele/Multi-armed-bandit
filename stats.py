@@ -8,27 +8,25 @@ from multiprocessing import Pool, cpu_count
 from typing import Dict, Tuple
 
 
-
-
 def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
     # Build environment
     replay = {}
-    if test_number == 1:
-        # TEST 1
+    if test_number == 2:
+        # TEST 2
         replay = {'probabilities': [0.9, 0.7, 0.1, 0.3], 
                 250: [(0, 0.0)],
                 500: [(1, 0.0)]
                 }
         
-    elif test_number == 2:
-        # TEST 2
+    elif test_number == 3:
+        # TEST 3
         replay = {'probabilities': [0.0, 0.0, 0.1, 0.3], 
                 250: [(0, 0.7)],
                 500: [(1, 0.9)]
                 }
     
-    elif test_number == 3:
-        # TEST 3
+    elif test_number == 4:
+        # TEST 4
         replay = {'probabilities': [0.2, 0.3, 0.4, 0.5]}
     
     
@@ -36,12 +34,12 @@ def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
+    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
     max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
     min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
     mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
-    agents = [ts, Discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
+    agents = [ts, discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build session
     replay_session = mab.Session(replay_env, agents)
@@ -167,23 +165,41 @@ def _min_max_comparison(n_arms, n_step, n_test, prob_of_change):
     return results
 
 
-def plot_regret_from_file(test_number):
-    
-    path = 'tmp/custom_test_' + str(test_number) + '_regret.csv'
+def plot_regret_from_file(test_number, grayscale:bool=False):
+    path = 'results/custom_test_' + str(test_number) + '_regret.csv'
     dataset = pd.read_csv(path)
     dataset = dataset.drop('Unnamed: 0', 1)
     
-    plt.style.use('grayscale')
+    if grayscale:
+        plt.style.use('grayscale')
     dataset.plot(linewidth=3)
-      
+    
+    plt.title('Regret', fontsize=24)
     plt.xlim(-10, 1010)
     plt.ylim(-0.01, 0.71)
+    plt.grid()
     plt.legend(prop={'size': 24})
-    plt.subplots_adjust(left=0.02, right=0.98, top=0.97, bottom=0.03)
+    plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
+
+    plt.show()
+    
+def plot_reward_trace_from_file(test_number, grayscale:bool=False):
+    path = 'results/custom_test_' + str(test_number) + '_real_reward_trace.csv'
+    dataset = pd.read_csv(path)
+    dataset = dataset.drop('Unnamed: 0', 1)
+    
+    if grayscale:
+        plt.style.use('grayscale')
+    dataset.plot(linewidth=3)
+    
+    plt.title('Reward trace', fontsize=24)
+    plt.xlim(-10, 1010)
+    plt.grid()
+    plt.legend(prop={'size': 24})
+    plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
 
     plt.show()
 
-    return
 
 if __name__ == "__main__":
     
@@ -201,12 +217,13 @@ if __name__ == "__main__":
     result.to_csv("results/dsw_ts_comparison.csv")
     '''
     
-    test_number = 1
+    test_number = 4
     '''
-    regret, real_reward_trace = custom_environments(n_arms, n_test=10, test_number=test_number)
+    regret, real_reward_trace = custom_environments(n_arms, n_test=1000, test_number=test_number)
     regret.to_csv("results/custom_test_" + str(test_number) + "_regret.csv")
     real_reward_trace.to_csv("results/custom_test_" + str(test_number) + "_real_reward_trace.csv")
     '''
-
+    
+    plot_reward_trace_from_file(test_number=test_number)
     plot_regret_from_file(test_number=test_number)
-     
+    
