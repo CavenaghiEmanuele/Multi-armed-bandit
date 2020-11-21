@@ -22,7 +22,7 @@ class DiscountedBernoulliTS(BernoulliAlgo):
         self._gamma = gamma
 
     def __repr__(self):
-        return "Discounted Thompson Sampling Bernoulli"
+        return "Discounted TS"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._betas *= self._gamma

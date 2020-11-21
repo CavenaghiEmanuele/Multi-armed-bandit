@@ -10,7 +10,7 @@ class BernoulliThompsonSampling(BernoulliAlgo):
         super().__init__(n_arms, store_estimates=store_estimates)
     
     def __repr__(self):
-        return "Thompson Sampling Bernoulli"
+        return "Thompson Sampling"
 
     def select_action(self) -> int:
         samples = [beta(a=self._betas[a][0], b=self._betas[a][1])

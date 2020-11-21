@@ -22,7 +22,7 @@ class MinDSWTS(BernoulliAlgo):
         self._gamma = gamma
 
     def __repr__(self):
-        return "Min d-sw TS Bernoulli"
+        return "Min d-sw TS"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._betas *= self._gamma

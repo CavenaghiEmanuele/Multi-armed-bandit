@@ -20,7 +20,7 @@ class BernoulliSlidingWindowTS(BernoulliAlgo):
         self._last_n_action = []
     
     def __repr__(self):
-        return "Sliding Window Thompson Sampling Bernoulli"
+        return "Sliding Window TS"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self.update_last_n_action_trace(action, reward)

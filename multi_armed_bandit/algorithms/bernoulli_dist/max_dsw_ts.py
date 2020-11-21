@@ -22,7 +22,7 @@ class MaxDSWTS(BernoulliAlgo):
         self._gamma = gamma
 
     def __repr__(self):
-        return "Max d-sw TS Bernoulli"
+        return "Max d-sw TS"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._betas *= self._gamma

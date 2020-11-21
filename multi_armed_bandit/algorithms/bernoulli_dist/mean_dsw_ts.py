@@ -23,7 +23,7 @@ class MeanDSWTS(BernoulliAlgo):
         self._gamma = gamma
 
     def __repr__(self):
-        return "Mean d-sw TS Bernoulli"
+        return "Mean d-sw TS"
 
     def update_estimates(self, action: int, reward: int) -> None:
         self._betas *= self._gamma

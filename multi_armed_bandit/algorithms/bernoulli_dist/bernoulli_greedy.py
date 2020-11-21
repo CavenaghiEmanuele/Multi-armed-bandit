@@ -9,7 +9,7 @@ class BernoulliGreedy(BernoulliAlgo):
         super().__init__(n_arms, store_estimates=store_estimates)
     
     def __repr__(self):
-        return "Greedy Bernoulli"
+        return "Greedy"
 
     def select_action(self) -> int:
         estimates = [self._betas[a][0] / (self._betas[a][0] + self._betas[a][1])
