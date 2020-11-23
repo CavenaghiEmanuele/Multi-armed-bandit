@@ -69,7 +69,7 @@ class YahooSession():
         dataset = pd.DataFrame()
         for i in range(len(results)):            
             dataset = pd.concat([dataset, pd.DataFrame.from_dict(results[i])], axis=1)
-        dataset.to_csv("results/Yahoo/reward_trace_day" + str(day) + ".csv")
+        dataset.to_csv("results/Yahoo/reward_trace_day" + str(day) + ".csv", index=False)
     
     def save_reward_perc_to_csv(self, results, day) -> None:
         
@@ -79,7 +79,7 @@ class YahooSession():
                 tmp[str(key)].append(value)
                    
         dataset = pd.DataFrame.from_dict(tmp)        
-        dataset.to_csv("results/Yahoo/reward_perc_day" + str(day) + ".csv")
+        dataset.to_csv("results/Yahoo/reward_perc_day" + str(day) + ".csv", index=False)
 
     def plot_reward_trace_from_csv(self, day, img_indexs, grayscale:bool=False) -> None:
                       
@@ -88,9 +88,8 @@ class YahooSession():
             dataset = pd.read_csv(path)
             dataset = dataset.add_suffix('')
             
-            agent_list = ['Max d-sw TS Bernoulli', 'Min d-sw TS Bernoulli', 'Mean d-sw TS Bernoulli',
-                    'Thompson Sampling Bernoulli', 'Sliding Window Thompson Sampling Bernoulli',
-                    'Discounted Thompson Sampling Bernoulli', 'random']
+            agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
+                    'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
             suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
             
             plt.figure()
@@ -107,12 +106,11 @@ class YahooSession():
             plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
         plt.show()
         
-        
     def plot_reward_perc_from_csv(self, day, img_indexs, grayscale:bool=False) -> None:
         
         for index in img_indexs:
             path = 'results/Yahoo/' + str(index) + '_reward_perc_day' + str(day) + '.csv'
-            dataset = pd.read_csv(path)          
+            dataset = pd.read_csv(path)
             
             if grayscale: plt.style.use('grayscale')
             dataset.plot.box()
@@ -124,6 +122,34 @@ class YahooSession():
             plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
         plt.show()
         
+    def plot_all_reward_perc_from_csv(self, day, img_indexs, grayscale:bool=False) -> None:
+        agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
+                    'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
+        dict_to_plot = {}
+        for index in img_indexs:
+            dict_to_plot.update({index : []})
+            for agent in agent_list:
+                path = 'results/Yahoo/' + str(index) + '_reward_perc_day' + str(day) + '.csv'
+                dict_to_plot[index].append(pd.read_csv(path)[agent].tolist())
+
+        plt.figure()
+        for key, value in dict_to_plot.items():
+            plt.boxplot(value, positions=np.array(range(len(value)))*2.0+(key/len(img_indexs))-1/2, sym='', widths=1/len(img_indexs))
+
+        plt.xticks(range(0, len(agent_list) * 2, 2), agent_list)
+        plt.title('% of correct suggested site', fontsize=24)
+        plt.xlabel('', fontsize=20)
+        plt.ylabel('% of correct suggested site', fontsize=20)
+        plt.figtext(.01, .01, 
+                    '1. gamma=0.9999     & n=1000 - n=3750   - gamma=0.999' + '           --/--   '
+                    '2. gamma=0.9999     & n=2000 - n=7500     - gamma=0.9999\n' +
+                    '3. gamma=0.9999     & n=4000 - n=15000 - gamma=0.99999' + '       --/--   '
+                    '4. gamma=0.99999   & n=2000 - n=30000   - gamma=0.999999\n' + 
+                    '5. gamma=0.999999 & n=2000 - n=60000 - gamma=0.9999999' + '   --/--   '
+                    '6. gamma=0.999999 & n=4000 - n=120000 - gamma=0.99999999\n'
+                    )
+        plt.show()
+             
     def run(self) -> Dict:
         pool = Pool(cpu_count())
         results = pool.map(self._run, range(self._n_test))
@@ -133,12 +159,12 @@ class YahooSession():
 
     def _run(self, fake) -> Dict:
         ########## BUILD AGENTS ###########
-        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.99999, n=2000, store_estimates=False)
-        min_dsw_ts = mab.MinDSWTS(n_arms=self._n_arms, gamma=0.99999, n=2000, store_estimates=False)
-        mean_dsw_ts = mab.MeanDSWTS(n_arms=self._n_arms, gamma=0.99999, n=2000, store_estimates=False)        
+        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.99999, n=4000, store_estimates=False)
+        min_dsw_ts = mab.MinDSWTS(n_arms=self._n_arms, gamma=0.99999, n=4000, store_estimates=False)
+        mean_dsw_ts = mab.MeanDSWTS(n_arms=self._n_arms, gamma=0.99999, n=4000, store_estimates=False)        
         ts = mab.BernoulliThompsonSampling(n_arms=self._n_arms, store_estimates=False)
-        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=30000, store_estimates=False)
-        d_ts = mab.DiscountedBernoulliTS(n_arms=self._n_arms, gamma=0.999999, store_estimates=False)
+        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=240000, store_estimates=False)
+        d_ts = mab.DiscountedBernoulliTS(n_arms=self._n_arms, gamma=0.999999999, store_estimates=False)
         agent_list = [max_dsw_ts, min_dsw_ts, mean_dsw_ts, ts, sw_ts, d_ts, "random"]
 
         np.random.seed()
@@ -177,7 +203,7 @@ if __name__ == "__main__":
     day = 2
     #n_arms = 6 --> Six clusters are created
     session = YahooSession(n_arms=6, n_test=10, compression=1000, day=day)
-    '''
+    #'''
     results = session.run()
     reward_trace = [item[0] for item in results]
     reward_perc = [item[1] for item in results]
@@ -187,7 +213,8 @@ if __name__ == "__main__":
 
     session.plot_reward_trace(reward_trace)
     '''
-    img_indexs = [1, 2, 3, 4]
-    session.plot_reward_trace_from_csv(day=day, img_indexs=img_indexs, grayscale=False)
-    session.plot_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
+    img_indexs = [1, 2, 3, 4, 5, 6]
+    #session.plot_reward_trace_from_csv(day=day, img_indexs=img_indexs, grayscale=False)
+    #session.plot_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
+    session.plot_all_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
     #'''
