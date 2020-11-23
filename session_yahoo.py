@@ -126,20 +126,25 @@ class YahooSession():
         agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
                     'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
         dict_to_plot = {}
-        for index in img_indexs:
-            dict_to_plot.update({index : []})
-            for agent in agent_list:
+        for agent in agent_list:
+            dict_to_plot.update({agent : []})
+            for index in img_indexs:
                 path = 'results/Yahoo/' + str(index) + '_reward_perc_day' + str(day) + '.csv'
-                dict_to_plot[index].append(pd.read_csv(path)[agent].tolist())
+                dict_to_plot[agent].append(pd.read_csv(path)[agent].tolist())
 
-        plt.figure()
-        for key, value in dict_to_plot.items():
-            plt.boxplot(value, positions=np.array(range(len(value)))*2.0+(key/len(img_indexs))-1/2, sym='', widths=1/len(img_indexs))
+        fig, axes = plt.subplots(
+            1,
+            7,
+            sharey=True
+        )
+        fig.set_figwidth(7 * 4)
 
-        plt.xticks(range(0, len(agent_list) * 2, 2), agent_list)
-        plt.title('% of correct suggested site', fontsize=24)
-        plt.xlabel('', fontsize=20)
-        plt.ylabel('% of correct suggested site', fontsize=20)
+        for i, (key, value) in enumerate(dict_to_plot.items()):
+            _ = axes[i].boxplot(value, sym='')
+            axes[i].set(xlabel=key)
+        
+        plt.setp(axes[0], ylabel='% of correct suggested site')
+        plt.suptitle('% of correct suggested site', fontsize=24)
         plt.figtext(.01, .01, 
                     '1. gamma=0.9999     & n=1000 - n=3750   - gamma=0.999' + '           --/--   '
                     '2. gamma=0.9999     & n=2000 - n=7500     - gamma=0.9999\n' +
@@ -203,7 +208,7 @@ if __name__ == "__main__":
     day = 2
     #n_arms = 6 --> Six clusters are created
     session = YahooSession(n_arms=6, n_test=10, compression=1000, day=day)
-    #'''
+    '''
     results = session.run()
     reward_trace = [item[0] for item in results]
     reward_perc = [item[1] for item in results]
@@ -213,7 +218,7 @@ if __name__ == "__main__":
 
     session.plot_reward_trace(reward_trace)
     '''
-    img_indexs = [1, 2, 3, 4, 5, 6]
+    img_indexs = [1, 2, 3, 4, 5, 6, 7]
     #session.plot_reward_trace_from_csv(day=day, img_indexs=img_indexs, grayscale=False)
     #session.plot_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
     session.plot_all_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
