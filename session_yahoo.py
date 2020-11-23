@@ -1,3 +1,4 @@
+from os import path
 from pickle import NONE, TRUE
 from multi_armed_bandit.algorithms.bernoulli_dist import mean_dsw_ts
 from multi_armed_bandit.algorithms.bernoulli_dist import min_dsw_ts
@@ -12,6 +13,7 @@ from numpy.core.fromnumeric import mean
 from multiprocessing import Pool, cpu_count
 from typing import Dict, List
 from tqdm import trange
+import seaborn as sns
 
 
 class YahooSession():
@@ -122,39 +124,17 @@ class YahooSession():
             plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
         plt.show()
         
-    def plot_all_reward_perc_from_csv(self, day, img_indexs, grayscale:bool=False) -> None:
-        agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
-                    'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
-        dict_to_plot = {}
-        for agent in agent_list:
-            dict_to_plot.update({agent : []})
-            for index in img_indexs:
-                path = 'results/Yahoo/' + str(index) + '_reward_perc_day' + str(day) + '.csv'
-                dict_to_plot[agent].append(pd.read_csv(path)[agent].tolist())
-
-        fig, axes = plt.subplots(
-            1,
-            7,
-            sharey=True
-        )
-        fig.set_figwidth(7 * 4)
-
-        for i, (key, value) in enumerate(dict_to_plot.items()):
-            _ = axes[i].boxplot(value, sym='')
-            axes[i].set(xlabel=key)
-        
-        plt.setp(axes[0], ylabel='% of correct suggested site')
-        plt.suptitle('% of correct suggested site', fontsize=24)
-        plt.figtext(.01, .01, 
-                    '1. gamma=0.9999     & n=1000 - n=3750   - gamma=0.999' + '           --/--   '
-                    '2. gamma=0.9999     & n=2000 - n=7500     - gamma=0.9999\n' +
-                    '3. gamma=0.9999     & n=4000 - n=15000 - gamma=0.99999' + '       --/--   '
-                    '4. gamma=0.99999   & n=2000 - n=30000   - gamma=0.999999\n' + 
-                    '5. gamma=0.999999 & n=2000 - n=60000 - gamma=0.9999999' + '   --/--   '
-                    '6. gamma=0.999999 & n=4000 - n=120000 - gamma=0.99999999\n'
-                    )
+    def plot_all_reward_perc_from_csv(self, day) -> None:         
+        path = 'results/Yahoo/all_reward_perc_day' + str(day) +'.csv'
+        _ = sns.catplot(
+                x="Session", 
+                y="% of correct suggested site",
+                palette="rocket",
+                col="Agent",
+                data=pd.read_csv(path), kind="box",
+                height=4, aspect=.7)        
         plt.show()
-             
+    
     def run(self) -> Dict:
         pool = Pool(cpu_count())
         results = pool.map(self._run, range(self._n_test))
@@ -221,5 +201,5 @@ if __name__ == "__main__":
     img_indexs = [1, 2, 3, 4, 5, 6, 7]
     #session.plot_reward_trace_from_csv(day=day, img_indexs=img_indexs, grayscale=False)
     #session.plot_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
-    session.plot_all_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
+    session.plot_all_reward_perc_from_csv(day=day)
     #'''
