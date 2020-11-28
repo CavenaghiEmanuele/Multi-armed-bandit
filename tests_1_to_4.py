@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from multiprocessing import Pool, cpu_count
-from typing import Dict, Tuple
+from typing import Tuple
 
 
 def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
@@ -48,7 +48,6 @@ def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
     replay_session.run(n_step=1000, n_test=n_test, use_replay=True)
 
     return pd.DataFrame.from_dict(replay_session._regrets), pd.DataFrame.from_dict(replay_session._real_reward_trace)
-
 
 def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.DataFrame:
     results = {}
@@ -110,61 +109,6 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change):
     results.update({"Oracle" : replay_session.get_reward_sum("Oracle")/n_step})
     return results
 
-
-def min_max_mean_comparison(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.DataFrame:
-    results = {}
-    
-    for prob_of_change in [0.001, 0.002, 0.003, 0.004, 0.005, 0.01, 0.015, 0.02]:
-        rewards = {"Oracle": 0,
-                "Min d-sw TS Bernoulli": 0,
-                "Max d-sw TS Bernoulli": 0,
-                "Mean d-sw TS Bernoulli": 0
-                }
-        parms = [(n_arms, n_step, n_test, prob_of_change) for _ in range(n_envs)]
-        pool = Pool(cpus)
-        result = pool.starmap(_min_max_comparison, parms)
-        pool.close()
-        pool.join()
-
-        for res in result:
-            for agent in res:
-                rewards[str(agent)] += res[agent]
-        
-        results.update({prob_of_change:[rewards[item] for item in rewards]})
-
-    return pd.DataFrame.from_dict(results, orient='index', columns=["Oracle", 
-                                                                       "Min d-sw TS Bernoulli", 
-                                                                       "Max d-sw TS Bernoulli", 
-                                                                       "Mean d-sw TS Bernoulli"])
-
-def _min_max_comparison(n_arms, n_step, n_test, prob_of_change):
-    np.random.seed()
-    # Build environment
-    env = mab.BernoulliDiscountedBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
-
-    # Generate replay
-    session = mab.Session(env, [])
-    session.run(n_step=n_step)
-
-    # Build Agents
-    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
-    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
-    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
-    agents = [max_dsw_ts, min_dsw_ts, mean_dsw_ts]
-
-    # Build Env with replay
-    replay_env = mab.BernoulliReplayBandit(replay=env.get_replay())
-
-    # Build session
-    replay_session = mab.Session(replay_env, agents)
-
-    # Run session
-    replay_session.run(n_step=n_step, n_test=n_test, use_replay=True)
-    results = {agent: replay_session.get_reward_sum(agent)/n_step for agent in agents}
-    results.update({"Oracle" : replay_session.get_reward_sum("Oracle")/n_step})
-    return results
-
-
 def plot_regret_from_file(test_number, grayscale:bool=False):
     path = 'results/custom_test_' + str(test_number) + '_regret.csv'
     dataset = pd.read_csv(path)
@@ -211,10 +155,6 @@ if __name__ == "__main__":
     '''
     result = multiple_env(n_arms, n_step, n_test, n_envs, cpus=15)
     result.to_csv("results/Multiple_env.csv")
-    '''
-    '''
-    result = min_max_mean_comparison(n_arms, n_step, n_test, n_envs)
-    result.to_csv("results/dsw_ts_comparison.csv")
     '''
     
     test_number = 4
