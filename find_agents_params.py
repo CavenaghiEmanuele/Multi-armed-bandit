@@ -2,22 +2,31 @@ import multi_armed_bandit as mab
 
 from multiprocessing import Pool, cpu_count
 
-import matplotlib.pyplot as plt
-
 
 def launch_session(n_arms, n_step, n_test):
     # Build environment
-    env = mab.BernoulliDiscountedBandit(n_arms, prob_of_change=0.002, fixed_action_prob=0.0, save_replay=True)
+    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=0.002, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
     session.run(n_step=n_step)
 
     # Build Agents
-    #Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
-    #sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
-    my_ts = mab.MyBernoulliTS(n_arms, gamma=0.98, n=20)
-    agents = [my_ts]
+    '''
+    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
+    agents = [discounted_ts]
+    
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
+    agents = [sw_ts]
+    
+    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
+    agents = [max_dsw_ts]
+    
+    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
+    agents = [min_dsw_ts]
+    '''
+    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
+    agents = [mean_dsw_ts]
 
     # Build Env with replay
     replay_env = mab.BernoulliReplayBandit(replay=env.get_replay())
@@ -39,12 +48,13 @@ if __name__ == "__main__":
     n_envs = 50
 
     rewards = {"Oracle": 0,
-               "Greedy Bernoulli": 0,
-               "Thompson Sampling Bernoulli": 0,
-               "Discounted Thompson Sampling Bernoulli": 0,
-               "Sliding Window Thompson Sampling Bernoulli": 0,
-               "My Thompson Sampling Bernoulli": 0
-               }
+                "Thompson Sampling Bernoulli": 0,
+                "Discounted Thompson Sampling Bernoulli": 0,
+                "Sliding Window Thompson Sampling Bernoulli": 0,
+                "Max d-sw TS Bernoulli": 0,
+                "Min d-sw TS Bernoulli": 0,
+                "Mean d-sw TS Bernoulli":0
+                }
 
     parms = [(n_arms, n_step, n_test) for _ in range(n_envs)]
 
