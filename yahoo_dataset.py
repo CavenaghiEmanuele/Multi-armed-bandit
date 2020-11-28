@@ -1,4 +1,3 @@
-import csv
 import pickle
 import pandas as pd
 import multi_armed_bandit as mab
