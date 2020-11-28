@@ -109,41 +109,6 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change):
     results.update({"Oracle" : replay_session.get_reward_sum("Oracle")/n_step})
     return results
 
-def plot_regret_from_file(test_number, grayscale:bool=False):
-    path = 'results/custom_test_' + str(test_number) + '_regret.csv'
-    dataset = pd.read_csv(path)
-    dataset = dataset.drop('Unnamed: 0', 1)
-    
-    if grayscale:
-        plt.style.use('grayscale')
-    dataset.plot(linewidth=3)
-    
-    plt.title('Regret', fontsize=24)
-    plt.xlim(-10, 1010)
-    plt.ylim(-0.01, 0.71)
-    plt.grid()
-    plt.legend(prop={'size': 24})
-    plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
-
-    plt.show()
-    
-def plot_reward_trace_from_file(test_number, grayscale:bool=False):
-    path = 'results/custom_test_' + str(test_number) + '_real_reward_trace.csv'
-    dataset = pd.read_csv(path)
-    dataset = dataset.drop('Unnamed: 0', 1)
-    
-    if grayscale:
-        plt.style.use('grayscale')
-    dataset.plot(linewidth=3)
-    
-    plt.title('Reward trace', fontsize=24)
-    plt.xlim(-10, 1010)
-    plt.grid()
-    plt.legend(prop={'size': 24})
-    plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
-
-    plt.show()
-
 
 if __name__ == "__main__":
 
@@ -156,14 +121,10 @@ if __name__ == "__main__":
     result = multiple_env(n_arms, n_step, n_test, n_envs, cpus=15)
     result.to_csv("results/Multiple_env.csv")
     '''
-    
-    test_number = 4
+
     '''
+    test_number = 4
     regret, real_reward_trace = custom_environments(n_arms, n_test=1000, test_number=test_number)
     regret.to_csv("results/custom_test_" + str(test_number) + "_regret.csv")
     real_reward_trace.to_csv("results/custom_test_" + str(test_number) + "_real_reward_trace.csv")
     '''
-    
-    plot_reward_trace_from_file(test_number=test_number)
-    plot_regret_from_file(test_number=test_number)
-    
