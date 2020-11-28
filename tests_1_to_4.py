@@ -82,7 +82,7 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
 def _multiple_env(n_arms, n_step, n_test, prob_of_change):
     np.random.seed()
     # Build environment
-    env = mab.BernoulliDiscountedBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
+    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
 
     # Generate replay
     session = mab.Session(env, [])
@@ -146,7 +146,7 @@ def plot_reward_trace_from_file(test_number, grayscale:bool=False):
 
 
 if __name__ == "__main__":
-    
+
     n_arms = 4
     n_step = 1000
     n_test = 30
