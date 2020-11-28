@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 import numpy as np
 import pickle
@@ -8,7 +7,6 @@ from numpy import random
 from multiprocessing import Pool, cpu_count
 from typing import Dict, List
 from tqdm import trange
-from copy import deepcopy
 
 import multi_armed_bandit as mab
 
@@ -80,64 +78,6 @@ class YahooSession():
         dataset = pd.DataFrame.from_dict(tmp)        
         dataset.to_csv("results/Yahoo/reward_perc_day" + str(day) + ".csv", index=False)
 
-    def plot_reward_trace_from_csv(self, day, img_indexs, grayscale:bool=False) -> None:
-                      
-        for index in img_indexs:
-            if index == 0:
-                path = 'results/Yahoo/day' + str(day) + '/reward_trace_day' + str(day) + '.csv'
-            else:    
-                path = 'results/Yahoo/day' + str(day) + '/' + str(index) + '_reward_trace_day' + str(day) + '.csv'
-            dataset = pd.read_csv(path)
-            dataset = dataset.add_suffix('')
-            
-            agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
-                    'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
-            suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
-            
-            plt.figure()
-            if grayscale: plt.style.use('grayscale')
-            
-            for agent in agent_list:
-                plt.plot(np.mean([dataset[agent + suffix].values for suffix in suffix_list], axis=0), label=agent, linewidth=3)      
-
-            plt.title('Reward trace (setting: ' + str(index) + ')', fontsize=24)
-            plt.grid()
-            plt.legend(prop={'size': 24})
-            plt.xlabel('Iterations grouped by 1000', fontsize=20)
-            plt.ylabel('Reward averaged over 1000 iteration', fontsize=20)
-            plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
-        plt.show()
-        
-    def plot_reward_perc_from_csv(self, day, img_indexs, grayscale:bool=False) -> None:
-        
-        for index in img_indexs:
-            if index == 0:
-                path = 'results/Yahoo/day' + str(day) + '/reward_perc_day' + str(day) + '.csv'
-            else:
-                path = 'results/Yahoo/day' + str(day) + '/' + str(index) + '_reward_perc_day' + str(day) + '.csv'
-            dataset = pd.read_csv(path)
-            
-            if grayscale: plt.style.use('grayscale')
-            dataset.plot.box()
-            
-            plt.title('% of correct suggested site (setting: ' + str(index) + ')', fontsize=24)
-            plt.grid(axis='y')
-            plt.xlabel('', fontsize=20)
-            plt.ylabel('% of correct suggested site', fontsize=20)
-            plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
-        plt.show()
-        
-    def plot_all_reward_perc_from_csv(self, day) -> None:         
-        path = 'results/Yahoo/day' + str(day) +  '/all_reward_perc_day' + str(day) +'.csv'
-        _ = sns.catplot(
-                x="Session", 
-                y="% of correct suggested site",
-                palette="rocket",
-                col="Agent",
-                data=pd.read_csv(path), kind="box",
-                height=4, aspect=.7)        
-        plt.show()
-    
     def run(self, mod:str="standard", compression:int=1000, termination_step:int=10000) -> Dict:
         self._compression = compression
         self._termination_step = termination_step
@@ -241,10 +181,10 @@ class YahooSession():
     
 if __name__ == "__main__":
 
-    day = 3
+    day = 5
     #n_arms = 6 --> Six clusters are created
     session = YahooSession(n_arms=6, n_test=10, day=day)
-    #'''
+    
     results = session.run(mod="standard", compression=1000, termination_step=50000)
     reward_trace = [item[0] for item in results]
     reward_perc = [item[1] for item in results]
@@ -253,9 +193,3 @@ if __name__ == "__main__":
     session.save_reward_perc_to_csv(reward_perc, day)
 
     session.plot_reward_trace(reward_trace)
-    '''
-    img_indexs = [0] #[1, 2, 3, 4, 5, 6, 7]
-    session.plot_reward_trace_from_csv(day=day, img_indexs=img_indexs, grayscale=False)
-    session.plot_reward_perc_from_csv(day=day, img_indexs=img_indexs, grayscale=True)
-    #session.plot_all_reward_perc_from_csv(day=day)
-    #'''
