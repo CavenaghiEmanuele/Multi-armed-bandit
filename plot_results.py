@@ -26,7 +26,7 @@ def multiple_envs_plot(grayscale:bool=False):
     
 
 def custom_tests_plot_regret(test_number, grayscale:bool=False):
-    path = 'results/costum_tests/custom_test_' + str(test_number) + '_regret.csv'
+    path = 'results/custum_tests/custom_test_' + str(test_number) + '_regret.csv'
     dataset = pd.read_csv(path)
     dataset = dataset.drop('Unnamed: 0', 1)
     
@@ -44,7 +44,7 @@ def custom_tests_plot_regret(test_number, grayscale:bool=False):
     plt.show()
     
 def custom_tests_plot_reward_trace(test_number, grayscale:bool=False):
-    path = 'results/costum_tests/custom_test_' + str(test_number) + '_real_reward_trace.csv'
+    path = 'results/custum_tests/custom_test_' + str(test_number) + '_real_reward_trace.csv'
     dataset = pd.read_csv(path)
     dataset = dataset.drop('Unnamed: 0', 1)
     
@@ -116,9 +116,9 @@ if __name__ == "__main__":
     #########################################################
     # Plot multiple envs results
     #########################################################
-    
+    '''
     multiple_envs_plot(grayscale=False)
-    
+    '''
     
     #########################################################
     # Plot custom tests
