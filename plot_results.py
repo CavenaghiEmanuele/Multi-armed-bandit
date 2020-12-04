@@ -61,7 +61,7 @@ def custom_tests_plot_reward_trace(test_number, grayscale:bool=False):
     plt.show()
 
 
-def yahoo_plot_reward_trace(day, grayscale:bool=False) -> None:                   
+def yahoo_plot_reward_trace(day, grayscale:bool=False) -> None:
     path = 'results/Yahoo/day' + str(day) + '/reward_trace_day' + str(day) + '.csv'
 
     dataset = pd.read_csv(path)
