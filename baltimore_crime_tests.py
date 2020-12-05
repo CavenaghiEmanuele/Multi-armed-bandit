@@ -48,7 +48,7 @@ class BaltimoreCrimeSession():
         dataset = pd.DataFrame()
         for i in range(len(results)):            
             dataset = pd.concat([dataset, pd.DataFrame.from_dict(results[i])], axis=1)
-        dataset.to_csv("results/Yahoo/reward_trace_day" + str(day) + ".csv", index=False)
+        dataset.to_csv("results/Baltimore_Crime/reward_trace_day" + str(day) + ".csv", index=False)
     
     def save_reward_perc_to_csv(self, results, day) -> None:
         
@@ -58,7 +58,7 @@ class BaltimoreCrimeSession():
                 tmp[str(key)].append(value)
                    
         dataset = pd.DataFrame.from_dict(tmp)        
-        dataset.to_csv("results/Yahoo/reward_perc_day" + str(day) + ".csv", index=False)
+        dataset.to_csv("results/Baltimore_Crime/reward_perc_day" + str(day) + ".csv", index=False)
 
     def run(self) -> Dict:
 
