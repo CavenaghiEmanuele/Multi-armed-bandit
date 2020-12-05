@@ -28,7 +28,18 @@ if __name__ == '__main__':
     
 
     env = mab.BernoulliReplayBandit(replay=replay)
-    session = mab.Session(env=env, agent=[])
-    session.run(n_step=2523, use_replay=True)
+    n_arms = env.get_n_arms()
+    max_dsw_ts = mab.MaxDSWTS(n_arms=n_arms, gamma=0.99, n=50, store_estimates=False)
+    min_dsw_ts = mab.MinDSWTS(n_arms=n_arms, gamma=0.99, n=50, store_estimates=False)
+    mean_dsw_ts = mab.MeanDSWTS(n_arms=n_arms, gamma=0.99, n=50, store_estimates=False)        
+    ts = mab.BernoulliThompsonSampling(n_arms=n_arms, store_estimates=False)
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms=n_arms, n=300, store_estimates=False)
+    d_ts = mab.DiscountedBernoulliTS(n_arms=n_arms, gamma=0.99, store_estimates=False)
+    agent_list = [max_dsw_ts, min_dsw_ts, mean_dsw_ts, ts, sw_ts, d_ts]
+    
+    session = mab.Session(env=env, agent=agent_list)
+    session.run(n_step=2523, n_test=30, use_replay=True)
     env.plot_arms(render=True)
+    
+    session.plot_all()
     
