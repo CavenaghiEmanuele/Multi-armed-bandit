@@ -16,7 +16,6 @@ class YahooSession():
 
     _dataset: pd.DataFrame
     _clusters: pd.DataFrame
-    _id_articles: List
     _n_step: int
     _n_test: int
     _n_arms: int
@@ -24,18 +23,9 @@ class YahooSession():
 
     def __init__(self, day:int, n_arms:int, n_test:int=1) -> None:
 
-        filenames = [
-            "ydata-fp-td-clicks-v1_0.20090501.csv", "ydata-fp-td-clicks-v1_0.20090502.csv", "ydata-fp-td-clicks-v1_0.20090503.csv",
-            "ydata-fp-td-clicks-v1_0.20090504.csv", "ydata-fp-td-clicks-v1_0.20090505.csv", "ydata-fp-td-clicks-v1_0.20090506.csv",
-            "ydata-fp-td-clicks-v1_0.20090507.csv", "ydata-fp-td-clicks-v1_0.20090508.csv", "ydata-fp-td-clicks-v1_0.20090509.csv",
-            "ydata-fp-td-clicks-v1_0.20090510.csv",
-        ]
-        path = '/home/emanuele/GoogleDrive/Thompson Sampling/yahoo_dataset/'
-
-        self._dataset = pd.read_csv("/media/emanuele/860EFA500EFA392F/Dataset Yahoo!/R6/Dataset Yahoo modified/" + filenames[day-1])
+        path = 'datasets/yahoo_r6/'
+        self._dataset = pd.read_csv(path + 'day' + str(day-1) + '.csv')
         self._clusters = pd.read_csv(path + 'clusters_6.csv')
-        with open(path + 'day' + str(day) + '/id_articles.txt', "rb") as fp:
-            self._id_articles = pickle.load(fp)
         self._n_step = len(self._dataset.index)
         self._n_test = n_test
         self._n_arms = n_arms
@@ -83,10 +73,16 @@ class YahooSession():
         self._termination_step = termination_step
         results = []
         pool = Pool(cpu_count())
-        if mod == "standard":
+        if mod == 'standard':
             results = pool.map(self._run, range(self._n_test))
-        elif mod == "modified":
+        elif mod == 'modified':
             results = pool.map(self._run_mod, range(self._n_test))
+        elif mod == 'only_ones':
+            self._dataset.drop(self._dataset[self._dataset.click == 0].index, inplace=True)
+            self._dataset = self._dataset.reset_index()
+            self._n_step = len(self._dataset.index)
+            results = pool.map(self._run, range(self._n_test))
+            
         pool.close()
         pool.join()
         return results # (Reward_trace, reward_percentual)
@@ -176,8 +172,8 @@ class YahooSession():
         for key in reward_sum:
             reward_sum[key] /= self._termination_step
 
-        return (reward_trace, reward_sum)
-    
+        return (reward_trace, reward_sum)        
+        
     
 if __name__ == "__main__":
 
@@ -185,11 +181,12 @@ if __name__ == "__main__":
     #n_arms = 6 --> Six clusters are created
     session = YahooSession(n_arms=6, n_test=10, day=day)
     
-    results = session.run(mod="standard", compression=1000, termination_step=50000)
+    # standard, modified, only_ones
+    results = session.run(mod='only_ones', compression=1000, termination_step=50000)
     reward_trace = [item[0] for item in results]
     reward_perc = [item[1] for item in results]
     
-    session.save_reward_trace_to_csv(reward_trace, day)
-    session.save_reward_perc_to_csv(reward_perc, day)
+    #session.save_reward_trace_to_csv(reward_trace, day)
+    #session.save_reward_perc_to_csv(reward_perc, day)
 
     session.plot_reward_trace(reward_trace)
