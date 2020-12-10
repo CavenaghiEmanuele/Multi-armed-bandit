@@ -53,12 +53,12 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
     results = {}
     for prob_of_change in [0.001, 0.002, 0.003, 0.004, 0.005, 0.01, 0.015, 0.02]:
         rewards = {"Oracle": 0,
-                "Thompson Sampling Bernoulli": 0,
-                "Discounted Thompson Sampling Bernoulli": 0,
-                "Sliding Window Thompson Sampling Bernoulli": 0,
-                "Max d-sw TS Bernoulli": 0,
-                "Min d-sw TS Bernoulli": 0,
-                "Mean d-sw TS Bernoulli":0
+                "Thompson Sampling": 0,
+                "Discounted TS": 0,
+                "Sliding Window TS": 0,
+                "Max d-sw TS": 0,
+                "Min d-sw TS": 0,
+                "Mean d-sw TS":0
                 }
         parms = [(n_arms, n_step, n_test, prob_of_change) for _ in range(n_envs)]
         pool = Pool(cpus)
@@ -72,21 +72,15 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
         results.update({prob_of_change:[rewards[item] for item in rewards]})
 
     return pd.DataFrame.from_dict(results, orient='index', columns=["Oracle",
-                                                                    "Thompson Sampling Bernoulli",
-                                                                    "Discounted Thompson Sampling Bernoulli",
-                                                                    "Sliding Window Thompson Sampling Bernoulli",
-                                                                    "Max d-sw TS Bernoulli",
-                                                                    "Min d-sw TS Bernoulli",
-                                                                    "Mean d-sw TS Bernoulli"])
+                                                                    "Thompson Sampling",
+                                                                    "Discounted TS",
+                                                                    "Sliding Window TS",
+                                                                    "Max d-sw TS",
+                                                                    "Min d-sw TS",
+                                                                    "Mean d-sw TS"])
 
 def _multiple_env(n_arms, n_step, n_test, prob_of_change):
     np.random.seed()
-    # Build environment
-    env = mab.BernoulliDynamicBandit(n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0, save_replay=True)
-
-    # Generate replay
-    session = mab.Session(env, [])
-    session.run(n_step=n_step)
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
@@ -98,8 +92,8 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change):
     agents = [ts, Discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build Env with replay
-    replay_env = mab.BernoulliReplayBandit(replay=env.get_replay())
-
+    replay_env = mab.BernoulliReplayBandit(n_step=n_step, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0)
+    
     # Build session
     replay_session = mab.Session(replay_env, agents)
 
