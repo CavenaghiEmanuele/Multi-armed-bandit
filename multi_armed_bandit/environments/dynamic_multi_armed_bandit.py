@@ -10,10 +10,12 @@ class DynamicMultiArmedBandit(MultiArmedBandit, ABC):
     _prob_of_change: float
     _action_value_trace: Dict
     _fixed_actions: List = []
+    _type_change: str
 
-    def __init__(self, n_arms: int, prob_of_change: float = 0.001, fixed_action_prob: float = None):
+    def __init__(self, n_arms: int, prob_of_change: float = 0.001, fixed_action_prob: float = None, type_change:str='abrupt'):
         super().__init__(n_arms)
-        self._prob_of_change = prob_of_change   
+        self._prob_of_change = prob_of_change
+        self._type_change = type_change
 
         if fixed_action_prob != None:
             for i in range(n_arms):
