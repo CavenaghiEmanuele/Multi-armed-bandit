@@ -21,8 +21,7 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
                                             n_arms=n_arms,
                                             probabilities=[uniform(0, 1) for _ in range(n_arms)], 
                                             prob_of_change=prob_of_change, 
-                                            fixed_action_prob=fixed_action_prob,
-                                            save_replay=True
+                                            fixed_action_prob=fixed_action_prob
                                             )
             self._replay = {'probabilities' : self._probabilities}
             for i in range(n_step):
@@ -30,8 +29,7 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
         else:
             self._replay = deepcopy(replay)
             BernoulliDynamicBandit.__init__(self, n_arms=len(self._replay['probabilities']), probabilities=self._replay['probabilities'])        
-        
-        
+
     def reset_to_start(self):
         self._probabilities = deepcopy(self._replay["probabilities"])
         self._best_action = np.argmax(self._probabilities)
