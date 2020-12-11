@@ -52,7 +52,7 @@ class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
             if not self._arm_change_lock[action]['lock']:
                 if (not action in self._fixed_actions) and (uniform(0, 1) < self._prob_of_change):
                     new_prob = uniform(0, 1)
-                    steps_to_change = randint(20, 100)
+                    steps_to_change = randint(100, 1000)
                     self._arm_change_lock[action] = {
                         'lock':True,
                         'step_size': (new_prob-self._probabilities[action]) / steps_to_change,
