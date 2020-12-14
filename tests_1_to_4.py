@@ -49,7 +49,7 @@ def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
 
     return pd.DataFrame.from_dict(replay_session._regrets), pd.DataFrame.from_dict(replay_session._real_reward_trace)
 
-def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.DataFrame:
+def multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus:int=cpu_count()) -> pd.DataFrame:
     results = {}
     for prob_of_change in [0.001, 0.002, 0.003, 0.004, 0.005, 0.01, 0.015, 0.02]:
         rewards = {"Oracle": 0,
@@ -60,7 +60,7 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
                 "Min d-sw TS": 0,
                 "Mean d-sw TS":0
                 }
-        parms = [(n_arms, n_step, n_test, prob_of_change) for _ in range(n_envs)]
+        parms = [(n_arms, n_step, n_test, prob_of_change, type_change) for _ in range(n_envs)]
         pool = Pool(cpus)
         result = pool.starmap(_multiple_env, parms)
         pool.close()
@@ -79,7 +79,7 @@ def multiple_env(n_arms, n_step, n_test, n_envs, cpus:int=cpu_count()) -> pd.Dat
                                                                     "Min d-sw TS",
                                                                     "Mean d-sw TS"])
 
-def _multiple_env(n_arms, n_step, n_test, prob_of_change):
+def _multiple_env(n_arms, n_step, n_test, prob_of_change, type_change):
     np.random.seed()
 
     # Build Agents
@@ -92,7 +92,12 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change):
     agents = [ts, Discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build Env with replay
-    replay_env = mab.BernoulliReplayBandit(n_step=n_step, n_arms=n_arms, prob_of_change=prob_of_change, fixed_action_prob=0.0)
+    replay_env = mab.BernoulliReplayBandit(n_step=n_step, 
+                                           n_arms=n_arms, 
+                                           prob_of_change=prob_of_change, 
+                                           fixed_action_prob=0.0,
+                                           type_change=type_change
+                                           )
     
     # Build session
     replay_session = mab.Session(replay_env, agents)
@@ -108,14 +113,13 @@ if __name__ == "__main__":
 
     n_arms = 4
     n_step = 1000
-    n_test = 30
-    n_envs = 1000
-
+    n_test = 3
+    n_envs = 1
+    type_change = 'incremental' # abrupt or incremental
     '''
-    result = multiple_env(n_arms, n_step, n_test, n_envs, cpus=15)
-    result.to_csv("results/Multiple_env.csv")
+    result = multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus=15)
+    result.to_csv("results/Multiple_env_" + type_change + ".csv")
     '''
-
     '''
     test_number = 4
     regret, real_reward_trace = custom_environments(n_arms, n_test=1000, test_number=test_number)
