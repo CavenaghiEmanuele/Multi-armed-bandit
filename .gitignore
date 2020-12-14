@@ -4,3 +4,4 @@ demo.py
 day?.csv
 day??.csv
 *.arff
+results/
