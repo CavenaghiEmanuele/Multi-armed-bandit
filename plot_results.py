@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np
 
 
-def multiple_envs_plot(grayscale:bool=False):
-    path = 'results/multiple_envs/Multiple_env_scaled.csv'
+def multiple_envs_plot(type_change:str, grayscale:bool=False):
+    path = 'results/multiple_envs/Multiple_env_' + type_change + '_scaled.csv'
     dataset = pd.read_csv(path)
     dataset = dataset.drop('Unnamed: 0', 1)
     
@@ -23,7 +23,7 @@ def multiple_envs_plot(grayscale:bool=False):
     plt.subplots_adjust(left=0.05, right=0.98, top=0.95, bottom=0.07)
 
     plt.show()
-    
+
 
 def custom_tests_plot_regret(test_number, grayscale:bool=False):
     path = 'results/custum_tests/custom_test_' + str(test_number) + '_regret.csv'
@@ -111,13 +111,29 @@ def yahoo_plot_all_reward_perc(day) -> None:
     plt.show()
 
 
+def baltimore_crime_plot_parameter_tuning(grayscale:bool=False) -> None:
+    agents = ['Discounted TS', 'Sliding Window TS', 'Max d-sw TS', 'Mean d-sw TS', 'Min d-sw TS']
+    for agent in agents:
+        path = 'results/baltimore_crime/find_params/' + agent + '.csv'
+        dataset = pd.read_csv(path)
+        
+        if grayscale: plt.style.use('grayscale')
+        dataset.plot.box()
+        
+        plt.title('Agent: ' + agent , fontsize=24)
+        plt.grid(axis='y')
+        plt.xlabel('', fontsize=20)
+        plt.ylabel('% of cumulative reward', fontsize=20)
+        plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
+    plt.show()
+
 if __name__ == "__main__":
     
     #########################################################
     # Plot multiple envs results
     #########################################################
     '''
-    multiple_envs_plot(grayscale=False)
+    multiple_envs_plot(type_change='incremental', grayscale=False) # incremental or abrupt
     '''
     
     #########################################################
@@ -143,4 +159,11 @@ if __name__ == "__main__":
     day=1
     yahoo_plot_reward_trace(day=day, grayscale=False)
     yahoo_plot_reward_perc(day=day, grayscale=True)
+    '''
+
+    #########################################################
+    # Plot Baltimore Crime dataset parameter tuning
+    #########################################################
+    '''
+    baltimore_crime_plot_parameter_tuning(grayscale=False)
     '''
