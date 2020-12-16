@@ -127,9 +127,22 @@ def baltimore_crime_plot_parameter_tuning(grayscale:bool=False) -> None:
         plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
     plt.show()
 
+def baltimore_crime_plot_reward_perc(grayscale:bool=False):
+    path = 'results/baltimore_crime/reward_perc.csv'
+    dataset = pd.read_csv(path)
+    
+    if grayscale: plt.style.use('grayscale')
+    dataset.plot.box()
+    
+    plt.title('% of correct identified disctricts', fontsize=24)
+    plt.grid(axis='y')
+    plt.xlabel('', fontsize=20)
+    plt.ylabel('% of correct identified disctricts', fontsize=20)
+    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
+    plt.show()
 
-def insects_plot_reward_trace(type_of_change:str, balanced_imbalanced:str, grayscale:bool=False) -> None:
-    path = 'results/insects/tests/' + type_of_change + '/' + balanced_imbalanced + '/reward_trace.csv'
+def baltimore_crime_plot_reward_trace(grayscale:bool=False) -> None:
+    path = 'results/baltimore_crime/reward_trace.csv'
 
     dataset = pd.read_csv(path)
     dataset = dataset.add_suffix('')
@@ -152,6 +165,31 @@ def insects_plot_reward_trace(type_of_change:str, balanced_imbalanced:str, grays
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
     plt.show()
     
+
+def insects_plot_reward_trace(type_of_change:str, balanced_imbalanced:str, grayscale:bool=False) -> None:
+    path = 'results/insects/tests/' + type_of_change + '/' + balanced_imbalanced + '/reward_trace.csv'
+
+    dataset = pd.read_csv(path)
+    dataset = dataset.add_suffix('')
+    
+    agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
+            'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
+    suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
+    
+    plt.figure()
+    if grayscale: plt.style.use('grayscale')
+    
+    for agent in agent_list:
+        plt.plot(np.mean([dataset[agent + suffix].values for suffix in suffix_list], axis=0), label=agent, linewidth=3)      
+
+    plt.title('Cumulative Reward trace: ' + type_of_change, fontsize=24)
+    plt.grid()
+    plt.legend(prop={'size': 24})
+    plt.xlabel('Iterations', fontsize=20)
+    plt.ylabel('Cumulative Reward (averaged over 10 runs)', fontsize=20)
+    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
+    plt.show()
+    
 def insects_plot_reward_perc(type_of_change:str, balanced_imbalanced:str, grayscale:bool=False) -> None:
     path = 'results/insects/tests/' + type_of_change + '/' + balanced_imbalanced + '/reward_perc.csv'
     dataset = pd.read_csv(path)
@@ -159,7 +197,7 @@ def insects_plot_reward_perc(type_of_change:str, balanced_imbalanced:str, graysc
     if grayscale: plt.style.use('grayscale')
     dataset.plot.box()
     
-    plt.title('% of correct identified classes', fontsize=24)
+    plt.title('% of correct identified classes: ' + type_of_change, fontsize=24)
     plt.grid(axis='y')
     plt.xlabel('', fontsize=20)
     plt.ylabel('% of correct identified classes', fontsize=20)
@@ -221,15 +259,18 @@ if __name__ == "__main__":
     # Plot Baltimore Crime dataset parameter tuning
     #########################################################
     '''
-    baltimore_crime_plot_parameter_tuning(grayscale=False)
+    #baltimore_crime_plot_parameter_tuning(grayscale=False)
+    baltimore_crime_plot_reward_perc(grayscale=False)
+    baltimore_crime_plot_reward_trace(grayscale=False)
     '''
     
     #########################################################
     # Plot insects tests 
     #########################################################
     
-    type_of_change = 'abrupt' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccuring
+    type_of_change = 'incremental-reoccuring' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccuring, out-of-control
     balanced_imbalanced = 'imbalanced' # balanced, imbalanced
-    #insects_plot_reward_perc(type_of_change, balanced_imbalanced, grayscale=False)
-    #insects_plot_reward_trace(type_of_change, balanced_imbalanced, grayscale=False)
-    insects_plot_parameter_tuning(type_of_change, balanced_imbalanced, grayscale=False)
+    insects_plot_reward_perc(type_of_change, balanced_imbalanced, grayscale=False)
+    insects_plot_reward_trace(type_of_change, balanced_imbalanced, grayscale=False)
+    #insects_plot_parameter_tuning(type_of_change, balanced_imbalanced, grayscale=False)
+    
