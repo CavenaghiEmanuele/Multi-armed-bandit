@@ -64,6 +64,7 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
                 except:
                     self._replay.update({step : [(action, self._probabilities[action])]})
             self._action_value_trace[action].append(self._probabilities[action])
+            self._best_action = np.argmax(self._probabilities)
     
     def _make_replay_incremental(self, step: int):
         for action in range(self._n_arms):
@@ -83,6 +84,7 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
                     except:
                         self._replay.update({step : [(action, self._probabilities[action])]})
                 self._action_value_trace[action].append(self._probabilities[action])
+                self._best_action = np.argmax(self._probabilities)
                 
             else:
                 self._probabilities[action] += self._arm_change_lock[action]['step_size']
@@ -95,3 +97,4 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
                 except:
                     self._replay.update({step : [(action, self._probabilities[action])]})
                 self._action_value_trace[action].append(self._probabilities[action])
+                self._best_action = np.argmax(self._probabilities)
