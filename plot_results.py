@@ -3,6 +3,22 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 
+def multiple_envs_parameter_tuning_plot(type_change:str, grayscale:bool=False):
+    agents = ['Discounted TS', 'Sliding Window TS', 'Max d-sw TS', 'Mean d-sw TS', 'Min d-sw TS']
+    for agent in agents:
+        path = 'results/multiple_envs/find_params/' + type_change + '/' + agent + '.csv'
+        dataset = pd.read_csv(path)
+        
+        if grayscale: plt.style.use('grayscale')
+        dataset.plot.box()
+        
+        plt.title('Agent: ' + agent , fontsize=35)
+        plt.grid(axis='y')
+        #plt.xlabel('', fontsize=35)
+        #plt.ylabel('% of cumulative reward', fontsize=35)
+        plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
+        plt.tick_params(axis='both', which='major', labelsize=24)
+    plt.show()
 
 def multiple_envs_plot(type_change:str, grayscale:bool=False):
     path = 'results/multiple_envs/Multiple_env_' + type_change + '_scaled.csv'
@@ -224,6 +240,13 @@ def insects_plot_parameter_tuning(type_of_change:str, balanced_imbalanced:str, g
 if __name__ == "__main__":
     
     #########################################################
+    # Plot multiple envs find paramas
+    #########################################################
+    
+    multiple_envs_parameter_tuning_plot(type_change='incremental', grayscale=False) # incremental or abrupt
+    
+    
+    #########################################################
     # Plot multiple envs results
     #########################################################
     '''
@@ -267,10 +290,10 @@ if __name__ == "__main__":
     #########################################################
     # Plot insects tests 
     #########################################################
-    
-    type_of_change = 'incremental-reoccuring' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccuring, out-of-control
+    '''
+    type_of_change = 'gradual' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
     balanced_imbalanced = 'imbalanced' # balanced, imbalanced
-    insects_plot_reward_perc(type_of_change, balanced_imbalanced, grayscale=False)
-    insects_plot_reward_trace(type_of_change, balanced_imbalanced, grayscale=False)
-    #insects_plot_parameter_tuning(type_of_change, balanced_imbalanced, grayscale=False)
-    
+    #insects_plot_reward_perc(type_of_change, balanced_imbalanced, grayscale=False)
+    #insects_plot_reward_trace(type_of_change, balanced_imbalanced, grayscale=False)
+    insects_plot_parameter_tuning(type_of_change, balanced_imbalanced, grayscale=False)
+    '''
