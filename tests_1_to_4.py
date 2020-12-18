@@ -1,6 +1,5 @@
 import multi_armed_bandit as mab
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
@@ -34,11 +33,11 @@ def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
-    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
-    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
-    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
-    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
+    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.99)
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
+    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.99, n=50)
+    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.95, n=75)
+    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.99, n=50)
     agents = [ts, discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build session
@@ -84,12 +83,12 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change, type_change):
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    Discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
-    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=75)
-    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.98, n=20)
-    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.98, n=20)
-    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.98, n=20)
-    agents = [ts, Discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
+    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.99)
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
+    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.99, n=50)
+    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.95, n=75)
+    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.99, n=50)
+    agents = [ts, discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build Env with replay
     replay_env = mab.BernoulliReplayBandit(n_step=n_step, 
@@ -109,20 +108,99 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change, type_change):
     return results
 
 
+def find_params(n_arms, n_step, n_test, n_envs, type_change) -> None:
+    path = 'results/multiple_envs/find_params/' + type_change + '/'
+
+    agent_params = {
+        'f_algo' : [
+            (0.9, 25), (0.9, 50), (0.9, 75), (0.9, 100), 
+            (0.95, 25), (0.95, 50), (0.95, 75), (0.95, 100),
+            (0.99, 25), (0.99, 50), (0.99, 75), (0.99, 100),
+            ],
+        'Sliding Window TS' : [
+            10, 15, 20, 25, 
+            50, 75, 100, 200, 
+            300, 400, 500, 800
+            ],
+        'Discounted TS' : [
+            0.5, 0.6, 0.7, 0.8,
+            0.9, 0.92, 0.95, 0.97, 
+            0.98, 0.99, 0.999, 0.9999,
+            ]
+    }
+    # only to save results
+    agent_params.update({'Max d-sw TS':agent_params['f_algo']})
+    agent_params.update({'Min d-sw TS':agent_params['f_algo']})
+    agent_params.update({'Mean d-sw TS':agent_params['f_algo']})
+
+    for i in range(len(agent_params['f_algo'])):
+        params = [
+            (n_arms, n_step, n_test, 0.005, type_change,
+                agent_params['f_algo'][i][0],
+                agent_params['f_algo'][i][1],
+                agent_params['Sliding Window TS'][i],
+                agent_params['Discounted TS'][i]
+                )
+            for _ in range(n_envs)
+            ]
+        pool = Pool(cpu_count())
+        results = pool.starmap(_find_params, params)
+        pool.close()
+        pool.join()
+
+        for agent in results[0]:
+            tmp = {str(agent_params[agent][i]) : [result[agent] for result in results]}
+            dataset = pd.concat(
+                [pd.read_csv(path + agent + '.csv'), pd.DataFrame.from_dict(tmp)],
+                axis=1, join='inner')
+            dataset.to_csv(path + agent + '.csv', index=False)
+    return
+
+def _find_params(n_arms, n_step, n_test, prob_of_change, type_change, f_gamma, f_n, sw_n, d_ts_gamma):
+    ########## BUILD AGENTS ###########
+    max_dsw_ts = mab.MaxDSWTS(n_arms=n_arms, gamma=f_gamma, n=f_n, store_estimates=False)
+    min_dsw_ts = mab.MinDSWTS(n_arms=n_arms, gamma=f_gamma, n=f_n, store_estimates=False)
+    mean_dsw_ts = mab.MeanDSWTS(n_arms=n_arms, gamma=f_gamma, n=f_n, store_estimates=False)
+    sw_ts = mab.BernoulliSlidingWindowTS(n_arms=n_arms, n=sw_n, store_estimates=False)
+    d_ts = mab.DiscountedBernoulliTS(n_arms=n_arms, gamma=d_ts_gamma, store_estimates=False)
+    agents = [max_dsw_ts, min_dsw_ts, mean_dsw_ts, sw_ts, d_ts]
+
+    np.random.seed()
+
+    # Build Env with replay
+    replay_env = mab.BernoulliReplayBandit(n_step=n_step, 
+                                           n_arms=n_arms, 
+                                           prob_of_change=prob_of_change, 
+                                           fixed_action_prob=0.0,
+                                           type_change=type_change
+                                           )
+    
+    # Build session
+    replay_session = mab.Session(replay_env, agents)
+
+    # Run session
+    replay_session.run(n_step=n_step, n_test=n_test, use_replay=True)
+    return {str(agent): replay_session.get_reward_sum(agent)/replay_session.get_reward_sum("Oracle") for agent in agents}
+
 if __name__ == "__main__":
 
     n_arms = 4
     n_step = 1000
-    n_test = 3
-    n_envs = 1
+    n_test = 30
+    n_envs = 1000
     type_change = 'incremental' # abrupt or incremental
     '''
+    find_params(n_arms=n_arms, n_step=n_step, n_test=n_test, n_envs=n_envs, type_change=type_change)
+    '''
+    
     result = multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus=15)
     result.to_csv("results/Multiple_env_" + type_change + ".csv")
-    '''
+    
     '''
     test_number = 4
     regret, real_reward_trace = custom_environments(n_arms, n_test=1000, test_number=test_number)
     regret.to_csv("results/custom_test_" + str(test_number) + "_regret.csv")
     real_reward_trace.to_csv("results/custom_test_" + str(test_number) + "_real_reward_trace.csv")
     '''
+    
+    
