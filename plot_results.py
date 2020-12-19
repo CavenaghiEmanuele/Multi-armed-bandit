@@ -150,10 +150,11 @@ def baltimore_crime_plot_reward_perc(grayscale:bool=False):
     if grayscale: plt.style.use('grayscale')
     dataset.plot.box()
     
-    plt.title('% of correct identified disctricts', fontsize=24)
+    #plt.title('% of correct identified disctricts', fontsize=24)
     plt.grid(axis='y')
     plt.xlabel('', fontsize=20)
-    plt.ylabel('% of correct identified disctricts', fontsize=20)
+    plt.ylabel('% of correct identified disctricts', fontsize=32)
+    plt.tick_params(axis='both', which='major', labelsize=22)
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
     plt.show()
 
@@ -178,6 +179,7 @@ def baltimore_crime_plot_reward_trace(grayscale:bool=False) -> None:
     plt.legend(prop={'size': 24})
     plt.xlabel('Iterations', fontsize=20)
     plt.ylabel('Cumulative Reward (averaged over 10 runs)', fontsize=20)
+    plt.tick_params(axis='both', which='major', labelsize=24)
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
     plt.show()
     
@@ -203,6 +205,7 @@ def insects_plot_reward_trace(type_of_change:str, balanced_imbalanced:str, grays
     plt.legend(prop={'size': 24})
     plt.xlabel('Iterations', fontsize=20)
     plt.ylabel('Cumulative Reward (averaged over 10 runs)', fontsize=20)
+    plt.tick_params(axis='both', which='major', labelsize=22)
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
     plt.show()
     
@@ -213,11 +216,12 @@ def insects_plot_reward_perc(type_of_change:str, balanced_imbalanced:str, graysc
     if grayscale: plt.style.use('grayscale')
     dataset.plot.box()
     
-    plt.title('% of correct identified classes: ' + type_of_change, fontsize=24)
+    #plt.title('% of correct identified classes: ' + type_of_change, fontsize=24)
     plt.grid(axis='y')
     plt.xlabel('', fontsize=20)
     plt.ylabel('% of correct identified classes', fontsize=20)
-    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
+    plt.tick_params(axis='both', which='major', labelsize=22)
+    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
     plt.show()
 
 def insects_plot_parameter_tuning(type_of_change:str, balanced_imbalanced:str, grayscale:bool=False) -> None:
@@ -234,6 +238,7 @@ def insects_plot_parameter_tuning(type_of_change:str, balanced_imbalanced:str, g
         plt.grid(axis='y')
         plt.xlabel('', fontsize=20)
         plt.ylabel('% of cumulative reward', fontsize=20)
+        plt.tick_params(axis='both', which='major', labelsize=15)
         plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
     plt.show()
 
@@ -242,9 +247,9 @@ if __name__ == "__main__":
     #########################################################
     # Plot multiple envs find paramas
     #########################################################
-    
-    multiple_envs_parameter_tuning_plot(type_change='incremental', grayscale=False) # incremental or abrupt
-    
+    '''
+    multiple_envs_parameter_tuning_plot(type_change='incremental', grayscale=True) # incremental or abrupt
+    '''
     
     #########################################################
     # Plot multiple envs results
@@ -279,7 +284,7 @@ if __name__ == "__main__":
     '''
 
     #########################################################
-    # Plot Baltimore Crime dataset parameter tuning
+    # Plot Baltimore Crime dataset
     #########################################################
     '''
     #baltimore_crime_plot_parameter_tuning(grayscale=False)
@@ -290,10 +295,10 @@ if __name__ == "__main__":
     #########################################################
     # Plot insects tests 
     #########################################################
-    '''
+    
     type_of_change = 'gradual' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
     balanced_imbalanced = 'imbalanced' # balanced, imbalanced
     #insects_plot_reward_perc(type_of_change, balanced_imbalanced, grayscale=False)
     #insects_plot_reward_trace(type_of_change, balanced_imbalanced, grayscale=False)
     insects_plot_parameter_tuning(type_of_change, balanced_imbalanced, grayscale=False)
-    '''
+    
