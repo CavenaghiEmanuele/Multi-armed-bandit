@@ -70,19 +70,19 @@ class BaltimoreCrimeSession():
 
     def _run(self, fake) -> Dict:
         ########## BUILD AGENTS ###########
-        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.99, n=500, store_estimates=False)
-        min_dsw_ts = mab.MinDSWTS(n_arms=self._n_arms, gamma=0.99, n=500, store_estimates=False)
-        mean_dsw_ts = mab.MeanDSWTS(n_arms=self._n_arms, gamma=0.99, n=500, store_estimates=False)        
+        max_dsw_ts = mab.MaxDSWTS(n_arms=self._n_arms, gamma=0.9999, n=800, store_estimates=False)
+        min_dsw_ts = mab.MinDSWTS(n_arms=self._n_arms, gamma=0.999, n=800, store_estimates=False)
+        mean_dsw_ts = mab.MeanDSWTS(n_arms=self._n_arms, gamma=0.9999, n=800, store_estimates=False)        
         ts = mab.BernoulliThompsonSampling(n_arms=self._n_arms, store_estimates=False)
-        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=30000, store_estimates=False)
-        d_ts = mab.DiscountedBernoulliTS(n_arms=self._n_arms, gamma=0.99, store_estimates=False)
+        sw_ts = mab.BernoulliSlidingWindowTS(n_arms=self._n_arms, n=12800, store_estimates=False)
+        d_ts = mab.DiscountedBernoulliTS(n_arms=self._n_arms, gamma=0.9999, store_estimates=False)
         agent_list = [max_dsw_ts, min_dsw_ts, mean_dsw_ts, ts, sw_ts, d_ts, "random"]
 
         np.random.seed()
         reward_trace = {agent: [0] for agent in agent_list}
         reward_sum = {agent: 0 for agent in agent_list}
             
-        for step in trange(self._n_step):
+        for step in trange(int(self._n_step/100*20), self._n_step):
             for agent in agent_list:
                 if agent == "random": action = random.randint(6)
                 else: action = agent.select_action()
@@ -193,5 +193,5 @@ if __name__ == "__main__":
 
     session = BaltimoreCrimeSession(n_test=10)
     
-    #session.run()
-    session.find_params(test_size=20)
+    session.run()
+    #session.find_params(test_size=20)
