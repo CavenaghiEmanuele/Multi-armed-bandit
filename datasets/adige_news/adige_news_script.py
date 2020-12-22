@@ -11,10 +11,12 @@ if __name__ == '__main__':
     dataset['article_topic'] = pd.Series(np.zeros(len(dataset.index)), index=dataset.index)
     for i in range(len(dataset.index)):
         try:
-            id_row = article_topic.loc[article_topic['article_id'] == dataset.iloc[i]['pk_article']]['percentage'].idxmax()
-            dataset.loc[i, 'article_topic'] = article_topic.iloc[id_row]['topic_id']
+            id_topics = article_topic.loc[article_topic['article_id'] == dataset.iloc[i]['pk_article']]['topic_id']
+            if len(id_topics) > 0: # Not all articles have a topic associated
+                dataset.loc[i, 'article_topic'] = ','.join(str(x) for x in id_topics)
+            else: raise Exception
         except:
-            pass
+            dataset.drop(i, inplace=True)
 
     dataset.drop(['pk_user', 'pk_session', 'timeview', 'date-time'],
                  axis=1,

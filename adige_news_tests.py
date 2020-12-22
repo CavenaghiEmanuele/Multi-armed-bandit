@@ -22,7 +22,10 @@ class AdigeNewsSession():
         self._dataset = pd.read_csv('datasets/adige_news/modified_adige_news.csv')
         self._n_step = len(self._dataset.index)
         self._n_test = n_test
-        self._topics = list(self._dataset.article_topic.unique())
+        self._topics = set()
+        for t in set(self._dataset.article_topic.unique()):
+            self._topics.update([int(x) for x in t.split(',')])
+        self._topics = list(self._topics)
         self._n_arms = len(self._topics)
 
     def plot_reward_trace(self, results):
@@ -86,10 +89,13 @@ class AdigeNewsSession():
                 if agent == "random": action = random.randint(6)
                 else: action = agent.select_action()
                 
-                topic = self._topics.index(self._dataset.loc[step]['article_topic'])
-
-                if (topic == action): reward = 1
-                else: reward = 0
+                topics = [int(x) for x in self._dataset.loc[step]['article_topic'].split(',')]
+                reward = 0
+                for t in topics:
+                    topic = self._topics.index(t)
+                    if (topic == action):
+                        reward = 1
+                        break
 
                 # Update statistics
                 reward_sum[agent] += reward
@@ -171,10 +177,13 @@ class AdigeNewsSession():
                 if agent == "random": action = random.randint(6)
                 else: action = agent.select_action()
                 
-                topic = self._topics.index(self._dataset.loc[step]['article_topic'])
-
-                if (topic == action): reward = 1
-                else: reward = 0
+                topics = [int(x) for x in self._dataset.loc[step]['article_topic'].split(',')]
+                reward = 0
+                for t in topics:
+                    topic = self._topics.index(t)
+                    if (topic == action):
+                        reward = 1
+                        break
 
                 # Update statistics
                 reward_sum[str(agent)] += reward
