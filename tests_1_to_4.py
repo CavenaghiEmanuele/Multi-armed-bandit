@@ -10,22 +10,22 @@ from typing import Tuple
 def custom_environments(n_arms, n_test, test_number:int) -> Tuple:
     # Build environment
     replay = {}
-    if test_number == 2:
-        # TEST 2
+    if test_number == 1:
+        # TEST 1
         replay = {'probabilities': [0.9, 0.7, 0.1, 0.3], 
                 250: [(0, 0.0)],
                 500: [(1, 0.0)]
                 }
         
-    elif test_number == 3:
-        # TEST 3
+    elif test_number == 2:
+        # TEST 2
         replay = {'probabilities': [0.0, 0.0, 0.1, 0.3], 
                 250: [(0, 0.7)],
                 500: [(1, 0.9)]
                 }
     
-    elif test_number == 4:
-        # TEST 4
+    elif test_number == 3:
+        # TEST 3
         replay = {'probabilities': [0.2, 0.3, 0.4, 0.5]}
     
     
@@ -83,11 +83,11 @@ def _multiple_env(n_arms, n_step, n_test, prob_of_change, type_change):
 
     # Build Agents
     ts = mab.BernoulliThompsonSampling(n_arms)
-    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.99)
+    discounted_ts = mab.DiscountedBernoulliTS(n_arms, gamma=0.98)
     sw_ts = mab.BernoulliSlidingWindowTS(n_arms, n=100)
-    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.99, n=50)
-    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.95, n=75)
-    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.99, n=50)
+    max_dsw_ts = mab.MaxDSWTS(n_arms, gamma=0.99, n=25)
+    min_dsw_ts = mab.MinDSWTS(n_arms, gamma=0.95, n=100)
+    mean_dsw_ts = mab.MeanDSWTS(n_arms, gamma=0.95, n=25)
     agents = [ts, discounted_ts, sw_ts, max_dsw_ts, min_dsw_ts, mean_dsw_ts]
 
     # Build Env with replay
@@ -188,19 +188,17 @@ if __name__ == "__main__":
     n_step = 1000
     n_test = 30
     n_envs = 1000
-    type_change = 'incremental' # abrupt or incremental
+    type_change = 'abrupt' # abrupt or incremental
     '''
     find_params(n_arms=n_arms, n_step=n_step, n_test=n_test, n_envs=n_envs, type_change=type_change)
     '''
     
-    result = multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus=15)
-    result.to_csv("results/Multiple_env_" + type_change + ".csv")
+    result = multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus=16)
+    result.to_csv("results/multiple_env_" + type_change + ".csv")
     
     '''
-    test_number = 4
+    test_number = 2 # 1, 2, 3
     regret, real_reward_trace = custom_environments(n_arms, n_test=1000, test_number=test_number)
     regret.to_csv("results/custom_test_" + str(test_number) + "_regret.csv")
     real_reward_trace.to_csv("results/custom_test_" + str(test_number) + "_real_reward_trace.csv")
     '''
-    
-    
