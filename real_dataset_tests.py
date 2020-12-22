@@ -44,6 +44,8 @@ class RealDatasetSession():
             return 'District'
         elif self._dataset_name == 'adige_news':
             return 'article_topic'
+        else:
+            raise Exception('Dataset name not exist')
 
     def save_reward_trace_to_csv(self, results, path) -> None:
         dataset = pd.DataFrame()
@@ -229,6 +231,8 @@ class RealDatasetSession():
                 mab.DiscountedBernoulliTS(n_arms=n_arms, gamma=0.999, store_estimates=False),
                 'random'
                 ]
+        else:
+            raise Exception('Dataset name not exist')
 
 
 if __name__ == '__main__':
