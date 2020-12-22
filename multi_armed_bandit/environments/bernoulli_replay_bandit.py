@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Dict
+from typing import Dict, List
 from copy import deepcopy
 from numpy.random import uniform, randint
 
@@ -10,6 +10,7 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
 
     _replay: Dict
     _arm_change_lock: Dict
+    _start_probabilities: List
 
     def __init__(self, replay:Dict = None, n_step:int = None, n_arms:int = None, prob_of_change: float = 0.001, fixed_action_prob: float = None, type_change:str='abrupt'):
             
@@ -25,16 +26,18 @@ class BernoulliReplayBandit(BernoulliDynamicBandit):
                                             fixed_action_prob=fixed_action_prob
                                             )
             self._replay = {'probabilities' : self._probabilities}
+            self._start_probabilities = deepcopy(self._probabilities)
             self._arm_change_lock = {action : {'lock':False, 'step_size':0.0, 'remaining_steps':0} 
                                      for action in range(n_arms)}
             for i in range(n_step):
                 self._make_replay(step=i, type=type_change)
         else:
             self._replay = deepcopy(replay)
+            self._start_probabilities = deepcopy(self._replay['probabilities'])
             BernoulliDynamicBandit.__init__(self, n_arms=len(self._replay['probabilities']), probabilities=self._replay['probabilities'])        
 
     def reset_to_start(self):
-        self._probabilities = deepcopy(self._replay["probabilities"])
+        self._probabilities = deepcopy(self._start_probabilities)
         self._best_action = np.argmax(self._probabilities)
         self._action_value_trace = {a:[self._probabilities[a]] for a in range(self._n_arms)}
 
