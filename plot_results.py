@@ -43,7 +43,7 @@ def multiple_envs_plot(type_change:str, grayscale:bool=False):
 
 
 def custom_tests_plot_regret(test_number, grayscale:bool=False):
-    path = 'results/custum_tests/custom_test_' + str(test_number) + '_regret.csv'
+    path = 'results/custom_tests/' + str(test_number) + '_regret.csv'
     dataset = pd.read_csv(path)
     dataset = dataset.drop('Unnamed: 0', 1)
     
@@ -61,7 +61,7 @@ def custom_tests_plot_regret(test_number, grayscale:bool=False):
     plt.show()
     
 def custom_tests_plot_reward_trace(test_number, grayscale:bool=False):
-    path = 'results/custum_tests/custom_test_' + str(test_number) + '_real_reward_trace.csv'
+    path = 'results/custom_tests/' + str(test_number) + '_real_reward_trace.csv'
     dataset = pd.read_csv(path)
     dataset = dataset.drop('Unnamed: 0', 1)
     
@@ -213,11 +213,11 @@ if __name__ == "__main__":
     #########################################################
     # Plot custom tests
     #########################################################
-    '''
-    test_number = 2
+    
+    test_number = 1
     custom_tests_plot_regret(test_number=test_number, grayscale=False)
     custom_tests_plot_reward_trace(test_number=test_number, grayscale=False)
-    '''
+    
     
     #########################################################
     # Plot Yahoo! find parameters
@@ -241,9 +241,9 @@ if __name__ == "__main__":
     '''
     type_of_change = 'abrupt' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
     balanced_imbalanced = 'imbalanced' # balanced, imbalanced
-    dataset_name = 'insects' # adige_news, baltimore_crime, insects
+    dataset_name = 'adige_news' # adige_news, baltimore_crime, insects
 
-    #real_dataset_plot_reward_perc('insects', type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced) # adige_news, baltimore_crime, insects
-    #real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced) # adige_news, baltimore_crime, insects
-    real_dataset_plot_parameter_tuning(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
+    real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
+    real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
+    #real_dataset_plot_parameter_tuning(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
     '''
