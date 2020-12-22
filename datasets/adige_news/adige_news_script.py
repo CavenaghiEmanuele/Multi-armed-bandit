@@ -5,7 +5,7 @@ import numpy as np
 
 if __name__ == '__main__':
 
-    dataset = pd.read_csv('adige_news.csv')
+    dataset = pd.read_csv('original_adige_news.csv')
     article_topic = pd.read_csv('article_topic_category.csv')
 
     dataset['article_topic'] = pd.Series(np.zeros(len(dataset.index)), index=dataset.index)
@@ -21,4 +21,4 @@ if __name__ == '__main__':
     dataset.drop(['pk_user', 'pk_session', 'timeview', 'date-time'],
                  axis=1,
                  inplace=True)
-    dataset.to_csv('modified_adige_news.csv', index=False)
+    dataset.to_csv('adige_news.csv', index=False)
