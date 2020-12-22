@@ -19,8 +19,7 @@ class BaltimoreCrimeSession():
     _districts: List
 
     def __init__(self, n_test:int=1) -> None:
-        self._dataset = pd.read_csv('datasets/baltimore_crime/modified_baltimore_crime.csv', parse_dates=['CrimeDate'])
-        self._dataset.drop('CrimeTime', axis=1, inplace=True)
+        self._dataset = pd.read_csv('datasets/baltimore_crime/modified_baltimore_crime.csv')
         self._n_step = len(self._dataset.index)
         self._n_test = n_test
         self._districts = list(self._dataset.District.unique())
