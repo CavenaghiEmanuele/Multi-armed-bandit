@@ -187,18 +187,18 @@ if __name__ == "__main__":
     n_arms = 4
     n_step = 1000
     n_test = 30
-    n_envs = 1000
+    n_envs = 100
     type_change = 'abrupt' # abrupt or incremental
     '''
     find_params(n_arms=n_arms, n_step=n_step, n_test=n_test, n_envs=n_envs, type_change=type_change)
     '''
-    '''
-    result = multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus=16)
-    result.to_csv("results/multiple_env_" + type_change + ".csv")
-    '''
     
+    result = multiple_env(n_arms, n_step, n_test, n_envs, type_change, cpus=16)
+    result.to_csv("results/TEST_multiple_env_" + type_change + ".csv")
+    
+    '''
     test_number = 1 # 1, 2, 3
-    regret, real_reward_trace = custom_environments(n_arms, n_test=100, test_number=test_number)
+    regret, real_reward_trace = custom_environments(n_arms, n_test=1000, test_number=test_number)
     regret.to_csv("results/custom_tests/" + str(test_number) + "_regret.csv")
     real_reward_trace.to_csv("results/custom_tests/" + str(test_number) + "_real_reward_trace.csv")
-    
+    '''

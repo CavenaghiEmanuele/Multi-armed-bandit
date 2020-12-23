@@ -205,19 +205,19 @@ if __name__ == "__main__":
     #########################################################
     # Plot multiple envs
     #########################################################
-    '''
-    multiple_envs_parameter_tuning_plot(type_change='abrupt', grayscale=True) # incremental or abrupt
+    
+    #multiple_envs_parameter_tuning_plot(type_change='abrupt', grayscale=True) # incremental or abrupt
     multiple_envs_plot(type_change='abrupt', grayscale=False) # incremental or abrupt
-    '''
+    
 
     #########################################################
     # Plot custom tests
     #########################################################
-    
+    '''
     test_number = 1
     custom_tests_plot_regret(test_number=test_number, grayscale=False)
     custom_tests_plot_reward_trace(test_number=test_number, grayscale=False)
-    
+    '''
     
     #########################################################
     # Plot Yahoo! find parameters
