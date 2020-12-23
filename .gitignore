@@ -4,4 +4,5 @@ demo.py
 day?.csv
 day??.csv
 *.arff
-results/
+reward_trace.csv
+Yahoo/
