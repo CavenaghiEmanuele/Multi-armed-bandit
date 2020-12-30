@@ -41,7 +41,7 @@ class RealDatasetSession():
             return 'class'
         elif self._dataset_name == 'baltimore_crime':
             return 'District'
-        elif self._dataset_name == 'adige_news':
+        elif self._dataset_name == 'local_news':
             return 'article_topic'
         else:
             raise Exception('Dataset name not exist')
@@ -200,7 +200,7 @@ class RealDatasetSession():
         return reward_sum
 
     def _best_agents(self, n_arms) -> List:
-        if self._dataset_name == 'adige_news':
+        if self._dataset_name == 'local_news':
             return [
                 mab.MaxDSWTS(n_arms=n_arms, gamma=0.999, n=800, store_estimates=False),
                 mab.MinDSWTS(n_arms=n_arms, gamma=0.95, n=800, store_estimates=False),
@@ -238,7 +238,7 @@ if __name__ == '__main__':
 
     type_of_change = 'abrupt' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
     balanced_imbalanced = 'imbalanced' # balanced, imbalanced
-    dataset_name = 'adige_news' # adige_news, baltimore_crime, insects
+    dataset_name = 'local_news' # local_news, baltimore_crime, insects
 
     session = RealDatasetSession(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced, n_test=10)
 

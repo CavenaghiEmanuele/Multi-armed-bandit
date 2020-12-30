@@ -240,7 +240,7 @@ if __name__ == "__main__":
     #########################################################
     
     type_of_change = 'incremental-reoccurring' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
-    dataset_name = 'adige_news' # adige_news, baltimore_crime, insects
+    dataset_name = 'local_news' # local_news, baltimore_crime, insects
 
     real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change)
     real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change)
