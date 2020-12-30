@@ -129,12 +129,12 @@ def yahoo_plot_all_reward_perc(day) -> None:
 
 
 
-def real_dataset_plot_parameter_tuning(dataset_name:str, type_of_change:str='', balanced_imbalanced:str='', grayscale:bool=False) -> None:
+def real_dataset_plot_parameter_tuning(dataset_name:str, type_of_change:str='', grayscale:bool=False) -> None:
     agents = ['Discounted TS', 'Sliding Window TS', 'Max d-sw TS', 'Mean d-sw TS', 'Min d-sw TS']
     
     base_path = 'results/' + dataset_name + '/find_params/'
     if dataset_name == 'insects':
-        base_path += type_of_change + '/' + balanced_imbalanced + '/'
+        base_path += type_of_change + '/'
    
     for agent in agents:
         path = base_path + agent + '.csv'
@@ -152,10 +152,10 @@ def real_dataset_plot_parameter_tuning(dataset_name:str, type_of_change:str='', 
         plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
     plt.show()
 
-def real_dataset_plot_reward_trace(dataset_name:str, type_of_change:str='', balanced_imbalanced:str='', grayscale:bool=False) -> None:
+def real_dataset_plot_reward_trace(dataset_name:str, type_of_change:str='', grayscale:bool=False) -> None:
     path = 'results/' + dataset_name + '/tests/'
     if dataset_name == 'insects':
-        path += type_of_change + '/' + balanced_imbalanced + '/'
+        path += type_of_change + '/'
     path += 'reward_trace.csv'
 
     dataset = pd.read_csv(path)
@@ -180,11 +180,11 @@ def real_dataset_plot_reward_trace(dataset_name:str, type_of_change:str='', bala
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
     plt.show()
 
-def real_dataset_plot_reward_perc(dataset_name:str, type_of_change:str='', balanced_imbalanced:str='', grayscale:bool=False) -> None:
+def real_dataset_plot_reward_perc(dataset_name:str, type_of_change:str='', grayscale:bool=False) -> None:
     path = 'results/' + dataset_name + '/tests/'
     figure_title = '% of correct identified classes'
     if dataset_name == 'insects':
-        path += type_of_change + '/' + balanced_imbalanced + '/'
+        path += type_of_change + '/'
         figure_title += ': ' + type_of_change
     path += 'reward_perc.csv'
     
@@ -205,10 +205,10 @@ if __name__ == "__main__":
     #########################################################
     # Plot multiple envs
     #########################################################
-    
+    '''
     #multiple_envs_parameter_tuning_plot(type_change='abrupt', grayscale=True) # incremental or abrupt
     multiple_envs_plot(type_change='abrupt', grayscale=False) # incremental or abrupt
-    
+    '''
 
     #########################################################
     # Plot custom tests
@@ -238,12 +238,11 @@ if __name__ == "__main__":
     #########################################################
     # Plot real dataset results
     #########################################################
-    '''
-    type_of_change = 'abrupt' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
-    balanced_imbalanced = 'imbalanced' # balanced, imbalanced
+    
+    type_of_change = 'incremental-reoccurring' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
     dataset_name = 'adige_news' # adige_news, baltimore_crime, insects
 
-    real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
-    real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
-    #real_dataset_plot_parameter_tuning(dataset_name=dataset_name, type_of_change=type_of_change, balanced_imbalanced=balanced_imbalanced)
-    '''
+    real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change)
+    real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change)
+    #real_dataset_plot_parameter_tuning(dataset_name=dataset_name, type_of_change=type_of_change)
+    
