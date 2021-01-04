@@ -28,9 +28,14 @@ class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
         plt.figure()
         for a in range(self._n_arms):
             plt.plot(self._action_value_trace[a], label="Action: " +
-                        str(a) + ", prob: " + str(self._probabilities[a]))
-        plt.suptitle("Bandit's arms values")
-        plt.legend()
+                        str(a) + ", prob: " + str(self._probabilities[a]),
+                        linewidth=3)
+        plt.suptitle("Bandit's arms values",  fontsize=24)        
+        plt.grid()
+        plt.legend(prop={'size': 24})
+        plt.xlabel('Steps', fontsize=24)
+        plt.ylabel('Reward probability', fontsize=24)
+        plt.tick_params(axis='both', which='major', labelsize=22)
         if render:
             plt.show()
 
