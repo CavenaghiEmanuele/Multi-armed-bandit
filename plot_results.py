@@ -51,12 +51,12 @@ def custom_tests_plot_regret(test_number, grayscale:bool=False):
         plt.style.use('grayscale')
     dataset.plot(linewidth=3)
     
-    plt.title('Regret', fontsize=24)
-    plt.xlim(-10, 1010)
-    plt.ylim(-0.01, 0.71)
-    plt.grid()
+    #plt.title('Regret', fontsize=24)
     plt.legend(prop={'size': 24})
-    plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
+    plt.grid(axis='y')
+    plt.xlabel('Step', fontsize=24)
+    plt.ylabel('Regret', fontsize=24)
+    plt.tick_params(axis='both', which='major', labelsize=24)
 
     plt.show()
     
@@ -69,11 +69,12 @@ def custom_tests_plot_reward_trace(test_number, grayscale:bool=False):
         plt.style.use('grayscale')
     dataset.plot(linewidth=3)
     
-    plt.title('Reward trace', fontsize=24)
-    plt.xlim(-10, 1010)
-    plt.grid()
+    #plt.title('Reward trace', fontsize=24)
     plt.legend(prop={'size': 24})
-    plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.03)
+    plt.grid(axis='y')
+    plt.xlabel('Step', fontsize=24)
+    plt.ylabel('Sum of Cumulative Reward', fontsize=24)
+    plt.tick_params(axis='both', which='major', labelsize=24)
 
     plt.show()
 
@@ -181,17 +182,28 @@ def real_dataset_plot_reward_trace(dataset_name:str, type_of_change:str='', gray
     plt.show()
 
 def real_dataset_plot_reward_perc(dataset_name:str, type_of_change:str='', grayscale:bool=False) -> None:
+    agents = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS', 'Discounted TS', 'Sliding Window TS', 'Thompson Sampling', 'random']
+    suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
+    
     path = 'results/' + dataset_name + '/tests/'
     figure_title = '% of correct identified classes'
     if dataset_name == 'insects':
         path += type_of_change + '/'
         figure_title += ': ' + type_of_change
-    path += 'reward_perc.csv'
+    path += 'reward_trace.csv'
     
     dataset = pd.read_csv(path)
+    agent_results = [
+        [
+        dataset[agent+suffix][len(dataset.index)-1] / (len(dataset.index)-1) 
+            for suffix in suffix_list
+            ]
+        for agent in agents
+        ]
+        
     if grayscale: plt.style.use('grayscale')
-    dataset.plot.box()
-    
+    plt.boxplot(agent_results, labels=agents)
+
     #plt.title(figure_title, fontsize=24)
     plt.grid(axis='y')
     plt.xlabel('', fontsize=20)
@@ -214,7 +226,7 @@ if __name__ == "__main__":
     # Plot custom tests
     #########################################################
     '''
-    test_number = 1
+    test_number = 3
     custom_tests_plot_regret(test_number=test_number, grayscale=False)
     custom_tests_plot_reward_trace(test_number=test_number, grayscale=False)
     '''
@@ -240,9 +252,9 @@ if __name__ == "__main__":
     #########################################################
     
     type_of_change = 'incremental-reoccurring' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
-    dataset_name = 'local_news' # local_news, baltimore_crime, insects
+    dataset_name = 'baltimore_crime' # local_news, baltimore_crime, insects
 
     real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change)
-    real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change)
+    #real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change)
     #real_dataset_plot_parameter_tuning(dataset_name=dataset_name, type_of_change=type_of_change)
     
