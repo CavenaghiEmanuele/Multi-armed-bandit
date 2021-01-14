@@ -135,7 +135,7 @@ def real_dataset_plot_parameter_tuning(dataset_name:str, type_of_change:str='', 
     
     base_path = 'results/' + dataset_name + '/find_params/'
     if dataset_name == 'insects':
-        base_path += type_of_change + '/'
+        base_path += type_of_change + '/imbalanced/'
    
     for agent in agents:
         path = base_path + agent + '.csv'
@@ -182,7 +182,7 @@ def real_dataset_plot_reward_trace(dataset_name:str, type_of_change:str='', gray
     plt.show()
 
 def real_dataset_plot_reward_perc(dataset_name:str, type_of_change:str='', grayscale:bool=False) -> None:
-    agents = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS', 'Discounted TS', 'Sliding Window TS', 'Thompson Sampling', 'random']
+    agents = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS', 'Discounted TS', 'Sliding Window TS', 'Thompson Sampling']
     suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
     
     path = 'results/' + dataset_name + '/tests/'
@@ -212,6 +212,25 @@ def real_dataset_plot_reward_perc(dataset_name:str, type_of_change:str='', grays
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
     plt.show()
     
+def bacteria_plot_reward_perc(grayscale:bool=False) -> None:
+    path = 'results/bacteria/reward_perc.csv'
+    df = pd.read_csv(path)
+    df[['Max d-sw TS','Min d-sw TS', 'Mean d-sw TS', 'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'Random']] = \
+        df[['Max d-sw TS','Min d-sw TS', 'Mean d-sw TS', 'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'Random']].div(df['Oracle'],axis=0)
+    df.drop('Oracle', axis=1, inplace=True)
+    
+    if grayscale: plt.style.use('grayscale')
+    df.plot.box()
+    
+    #plt.title('% of correct identified classes', fontsize=24)
+    plt.grid(axis='y')
+    plt.xlabel('', fontsize=20)
+    plt.ylabel('% of correct identified classes', fontsize=20)
+    plt.tick_params(axis='both', which='major', labelsize=22)
+    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
+    plt.show()
+
+
 if __name__ == "__main__":
 
     #########################################################
@@ -251,10 +270,15 @@ if __name__ == "__main__":
     # Plot real dataset results
     #########################################################
     
-    type_of_change = 'incremental-reoccurring' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
-    dataset_name = 'baltimore_crime' # local_news, baltimore_crime, insects
+    type_of_change = 'gradual' # abrupt, gradual, incremental-abrupt, incremental, incremental-reoccurring, out-of-control
+    dataset_name = 'bacteria' # local_news, baltimore_crime, insects, bacteria
 
-    real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change)
+    # Plot bacteria results
+    bacteria_plot_reward_perc()
+
+    #real_dataset_plot_reward_perc(dataset_name=dataset_name, type_of_change=type_of_change)
     #real_dataset_plot_reward_trace(dataset_name=dataset_name, type_of_change=type_of_change)
     #real_dataset_plot_parameter_tuning(dataset_name=dataset_name, type_of_change=type_of_change)
+
+    
     
