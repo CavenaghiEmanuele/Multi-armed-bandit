@@ -24,7 +24,7 @@ class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
         self._arm_change_lock = {action : {'lock':False, 'step_size':0.0, 'remaining_steps':0} 
                                      for action in range(n_arms)}
 
-    def plot_arms(self, render: bool = True):
+    def plot_arms(self, render: bool = True, plot_legend:bool = True):
         plt.figure()
         for a in range(self._n_arms):
             plt.plot(self._action_value_trace[a], label="Action: " +
@@ -32,7 +32,8 @@ class BernoulliDynamicBandit(DynamicMultiArmedBandit, BernoulliBandit):
                         linewidth=3)
         plt.suptitle("Bandit's arms values",  fontsize=24)        
         plt.grid()
-        plt.legend(prop={'size': 24})
+        if plot_legend:
+            plt.legend(prop={'size': 24})
         plt.xlabel('Steps', fontsize=24)
         plt.ylabel('Reward probability', fontsize=24)
         plt.tick_params(axis='both', which='major', labelsize=22)
