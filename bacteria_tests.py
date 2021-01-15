@@ -20,8 +20,8 @@ class BacteriaDatasetSession():
 
     def __init__(self, n_test:int=10, fixed_step:int=1) -> None:
         self._n_test = n_test
-        self._n_step_train = 172 * fixed_step
-        self._n_step_test = 534 * fixed_step
+        self._n_step_train = 61 * fixed_step
+        self._n_step_test = 177 * fixed_step
         self._fixed_step = fixed_step
         self.build_env(train_test='train')
         self.build_env(train_test='test')
@@ -163,8 +163,8 @@ class BacteriaDatasetSession():
     def _best_agents(self, n_arms) -> List:
             return [
                 mab.MaxDSWTS(n_arms=n_arms, gamma=0.9999, n=800, store_estimates=False),
-                mab.MinDSWTS(n_arms=n_arms, gamma=0.99, n=100, store_estimates=False),
-                mab.MeanDSWTS(n_arms=n_arms, gamma=0.999, n=800, store_estimates=False),
+                mab.MinDSWTS(n_arms=n_arms, gamma=0.99, n=800, store_estimates=False),
+                mab.MeanDSWTS(n_arms=n_arms, gamma=0.9999, n=800, store_estimates=False),
                 mab.BernoulliThompsonSampling(n_arms=n_arms, store_estimates=False),
                 mab.BernoulliSlidingWindowTS(n_arms=n_arms, n=12800, store_estimates=False), 
                 mab.DiscountedBernoulliTS(n_arms=n_arms, gamma=0.9999, store_estimates=False), 
@@ -174,7 +174,7 @@ class BacteriaDatasetSession():
 
 if __name__ == '__main__':
 
-    session = BacteriaDatasetSession(n_test=10, fixed_step=120)
-    session.run()
+    session = BacteriaDatasetSession(n_test=10, fixed_step=1)
+    #session.run()
     #session.find_params()
-    #session.plot_arms(plot_legend=False, train_test='train')
+    session.plot_arms(plot_legend=False, train_test='train')
