@@ -79,57 +79,6 @@ def custom_tests_plot_reward_trace(test_number, grayscale:bool=False):
     plt.show()
 
 
-def yahoo_plot_reward_trace(day, grayscale:bool=False) -> None:
-    path = 'results/Yahoo/day' + str(day) + '/reward_trace_day' + str(day) + '.csv'
-
-    dataset = pd.read_csv(path)
-    dataset = dataset.add_suffix('')
-    
-    agent_list = ['Max d-sw TS', 'Min d-sw TS', 'Mean d-sw TS',
-            'Thompson Sampling', 'Sliding Window TS', 'Discounted TS', 'random']
-    suffix_list = ['', '.1', '.2', '.3', '.4', '.5', '.6', '.7', '.8', '.9']
-    
-    plt.figure()
-    if grayscale: plt.style.use('grayscale')
-    
-    for agent in agent_list:
-        plt.plot(np.mean([dataset[agent + suffix].values for suffix in suffix_list], axis=0), label=agent, linewidth=3)      
-
-    plt.title('Reward trace', fontsize=24)
-    plt.grid()
-    plt.legend(prop={'size': 24})
-    plt.xlabel('Iterations grouped by 1000', fontsize=20)
-    plt.ylabel('Reward averaged over 1000 iteration', fontsize=20)
-    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)
-    plt.show()
-    
-def yahoo_plot_reward_perc(day, grayscale:bool=False) -> None:
-    path = 'results/Yahoo/day' + str(day) + '/reward_perc_day' + str(day) + '.csv'
-    dataset = pd.read_csv(path)
-    
-    if grayscale: plt.style.use('grayscale')
-    dataset.plot.box()
-    
-    plt.title('% of correct suggested site', fontsize=24)
-    plt.grid(axis='y')
-    plt.xlabel('', fontsize=20)
-    plt.ylabel('% of correct suggested site', fontsize=20)
-    plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
-    plt.show()
-    
-def yahoo_plot_all_reward_perc(day) -> None:
-    path = 'results/Yahoo/day' + str(day) +  '/all_reward_perc_day' + str(day) +'.csv'
-    _ = sns.catplot(
-            x="Session", 
-            y="% of correct suggested site",
-            palette="rocket",
-            col="Agent",
-            data=pd.read_csv(path), kind="box",
-            height=4, aspect=.7)        
-    plt.show()
-
-
-
 def real_dataset_plot_parameter_tuning(dataset_name:str, type_of_change:str='', grayscale:bool=False) -> None:
     agents = ['Discounted TS', 'Sliding Window TS', 'Max d-sw TS', 'Mean d-sw TS', 'Min d-sw TS']
     
@@ -225,7 +174,7 @@ def bacteria_plot_reward_perc(grayscale:bool=False) -> None:
     #plt.title('% of correct identified classes', fontsize=24)
     plt.grid(axis='y')
     plt.xlabel('', fontsize=20)
-    plt.ylabel('% of correct identified classes', fontsize=20)
+    plt.ylabel('Relative to Oracle', fontsize=20)
     plt.tick_params(axis='both', which='major', labelsize=22)
     plt.subplots_adjust(left=0.04, right=0.98, top=0.95, bottom=0.07)    
     plt.show()
@@ -249,22 +198,6 @@ if __name__ == "__main__":
     custom_tests_plot_regret(test_number=test_number, grayscale=False)
     custom_tests_plot_reward_trace(test_number=test_number, grayscale=False)
     '''
-    
-    #########################################################
-    # Plot Yahoo! find parameters
-    #########################################################
-    '''
-    yahoo_plot_all_reward_perc(day=2)
-    '''
-
-    #########################################################
-    # Plot Yahoo! tests days
-    #########################################################
-    '''
-    day=1
-    yahoo_plot_reward_trace(day=day, grayscale=False)
-    yahoo_plot_reward_perc(day=day, grayscale=True)
-    '''    
 
     #########################################################
     # Plot real dataset results
