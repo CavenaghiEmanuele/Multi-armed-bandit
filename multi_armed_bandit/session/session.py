@@ -42,18 +42,21 @@ class Session():
             
             for step in range(n_step):
                 # Oracle
-                self._real_reward["Oracle"] += self._env.action_mean(self._env.get_best_action())
+                self._real_reward["Oracle"] += self._env.best_action_mean()
                 self._real_reward_trace["Oracle"][step] += (1/(test+1)) * (self._real_reward["Oracle"] - self._real_reward_trace["Oracle"][step])
-                
+
                 for agent in self._agents:
                     context = self._env.get_context()
                     action = agent.select_action(context)
                     reward = self._env.do_action(action)
+
                     agent.update_estimates(action, context, reward)    
                     self._update_statistic(test=test, step=step, id_agent=agent, action=action)
 
                 if isinstance(self._env, DynamicMultiArmedBandit):
                     self._env.change_action_prob(step=step)
+                
+                self._env.update_context()
             
             # Reset env and agent to start condition, then the changes will be those stored in the replay saved inside the env
             if (test < n_test-1) and use_replay:
