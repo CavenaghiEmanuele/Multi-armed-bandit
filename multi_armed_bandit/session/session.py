@@ -46,9 +46,10 @@ class Session():
                 self._real_reward_trace["Oracle"][step] += (1/(test+1)) * (self._real_reward["Oracle"] - self._real_reward_trace["Oracle"][step])
                 
                 for agent in self._agents:
-                    action = agent.select_action()
+                    context = self._env.get_context()
+                    action = agent.select_action(context)
                     reward = self._env.do_action(action)
-                    agent.update_estimates(action, reward)    
+                    agent.update_estimates(action, context, reward)    
                     self._update_statistic(test=test, step=step, id_agent=agent, action=action)
 
                 if isinstance(self._env, DynamicMultiArmedBandit):
