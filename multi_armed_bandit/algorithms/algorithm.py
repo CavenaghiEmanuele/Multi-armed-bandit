@@ -1,3 +1,4 @@
+import numpy as np
 from uuid import uuid1
 from abc import ABC, abstractmethod
 
@@ -18,11 +19,11 @@ class Algorithm(ABC):
         pass
     
     @abstractmethod
-    def update_estimates(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, context: np.array, reward: int) -> None:
         pass
 
     @abstractmethod
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         pass
     
     @abstractmethod

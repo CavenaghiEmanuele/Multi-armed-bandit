@@ -24,7 +24,7 @@ class DiscountedBernoulliTS(BernoulliAlgo):
     def __repr__(self):
         return "Discounted TS"
 
-    def update_estimates(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, context: np.array, reward: int) -> None:
         self._betas *= self._gamma
         if reward == 0:
             self._betas[action][1] += 1  # Update beta
@@ -34,7 +34,7 @@ class DiscountedBernoulliTS(BernoulliAlgo):
             for a in range(self._n_arms):
                 self._mean_trace[a].append(self._betas[a][0] / (self._betas[a][0] + self._betas[a][1]))
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         samples = [beta(a=self._betas[a][0] + self._alpha_0, b=self._betas[a][1] + self._beta_0)
                    for a in range(self._n_arms)]
         return np.argmax(samples)

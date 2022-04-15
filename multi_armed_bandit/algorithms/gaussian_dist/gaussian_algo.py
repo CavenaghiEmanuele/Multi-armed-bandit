@@ -29,7 +29,7 @@ class GaussianAlgo(Algorithm, ABC):
         self._n_action_taken = np.zeros(self._n_arms)
         self._mean_trace = {action : [1/2] for action in range(self._n_arms)}
 
-    def update_estimates(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, context: np.array, reward: int) -> None:
         self._n_action_taken[action] += 1
         self._std_dev[action] *= self._decay_rate
         n = self._n_action_taken[action]

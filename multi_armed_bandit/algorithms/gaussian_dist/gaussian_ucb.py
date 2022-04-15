@@ -20,7 +20,7 @@ class GaussianUCB(GaussianAlgo):
     def __repr__(self):
         return "UCB gaussian, decay rate: " + str(self._decay_rate)
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         self._action_taken += 1
         estimates = []
         for a in range(self._n_arms):

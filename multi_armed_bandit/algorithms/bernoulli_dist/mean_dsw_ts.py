@@ -25,7 +25,7 @@ class MeanDSWTS(BernoulliAlgo):
     def __repr__(self):
         return "Mean d-sw TS"
 
-    def update_estimates(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, context: np.array, reward: int) -> None:
         self._betas *= self._gamma
         self.update_tmp_betas(action, reward)
         self._betas[action][reward] += 1
@@ -40,7 +40,7 @@ class MeanDSWTS(BernoulliAlgo):
         self._tmp_betas[action][reward] += 1
         self._last_reward_trace[action].append(reward)
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         samples = [beta(a=self._betas[a][1] + 1, b=self._betas[a][0] + 1)
                    for a in range(self._n_arms)]
         tmp_samples = [beta(a=self._tmp_betas[a][1], b=self._tmp_betas[a][0])

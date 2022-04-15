@@ -22,7 +22,7 @@ class BernoulliSlidingWindowTS(BernoulliAlgo):
     def __repr__(self):
         return "Sliding Window TS"
 
-    def update_estimates(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, context: np.array, reward: int) -> None:
         self.update_last_n_action_trace(action, reward)
         
         if reward == 0:
@@ -43,7 +43,7 @@ class BernoulliSlidingWindowTS(BernoulliAlgo):
         
         self._last_n_action.append((action, reward))
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         samples = [beta(a=self._betas[a][0], b=self._betas[a][1])
                    for a in range(self._n_arms)]
         return np.argmax(samples)

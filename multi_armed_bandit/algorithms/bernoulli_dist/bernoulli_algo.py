@@ -23,7 +23,7 @@ class BernoulliAlgo(Algorithm, ABC):
         self._betas = np.ones(shape=(self._n_arms, 2))
         self._mean_trace = {action : [1/2] for action in range(self._n_arms)}
 
-    def update_estimates(self, action: int, reward: int) -> None:
+    def update_estimates(self, action: int, context: np.array, reward: int) -> None:
         if reward == 0:
             self._betas[action][1] += 1  # Update beta
         else:  # Reward == 1

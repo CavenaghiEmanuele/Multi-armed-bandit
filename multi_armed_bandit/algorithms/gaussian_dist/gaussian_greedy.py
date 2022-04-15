@@ -11,5 +11,5 @@ class GaussianGreedy(GaussianAlgo):
     def __repr__(self):
         return "Greedy gaussian, decay rate: " + str(self._decay_rate)
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         return np.argmax(self._mu)

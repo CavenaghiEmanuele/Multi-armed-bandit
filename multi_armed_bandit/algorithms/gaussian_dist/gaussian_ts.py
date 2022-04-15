@@ -12,6 +12,6 @@ class GaussianThompsonSampling(GaussianAlgo):
     def __repr__(self):
         return "Thompson Samplig gaussian, decay rate: " + str(self._decay_rate)
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         samples = [normal(loc=self._mu[a], scale=self._std_dev[a]) for a in range(self._n_arms)]
         return np.argmax(samples)

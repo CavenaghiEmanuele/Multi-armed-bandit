@@ -20,7 +20,7 @@ class BernoulliUCB(BernoulliAlgo):
     def __repr__(self):
         return "UCB Bernoulli"
 
-    def select_action(self) -> int:
+    def select_action(self, context: np.array) -> int:
         self._action_taken += 1
         estimates = []
         for a in range(self._n_arms):
