@@ -1,3 +1,4 @@
 from .environments import *
-from .algorithms import *
+from .mab_agents import *
 from .session import *
+from .utils import *
