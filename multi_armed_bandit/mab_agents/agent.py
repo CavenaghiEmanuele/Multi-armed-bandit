@@ -1,16 +1,17 @@
 from abc import ABC, abstractmethod
 from functools import total_ordering
+from typing import List
 
 
 @total_ordering
 class Agent(ABC):
 
-    _n_arms: int
+    _actions: List[str]
     _id: str
 
-    def __init__(self, id:str, n_arms: int):
+    def __init__(self, id:str, actions: List[str]):
         self._id = type(self).__name__ + str(id)
-        self._n_arms = n_arms
+        self._actions = actions
     
     def __repr__(self):
         return self._id
@@ -32,7 +33,7 @@ class Agent(ABC):
         pass
     
     @abstractmethod
-    def update_estimates(self, state:int, action: int, reward: int) -> None:
+    def update_estimates(self, state:int, action: str, reward: int) -> None:
         pass
 
     @abstractmethod

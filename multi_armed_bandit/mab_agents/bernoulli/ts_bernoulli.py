@@ -1,15 +1,16 @@
-from .bernoulli_agent import BernoulliAgent
-
 import numpy as np
-from numpy.random import beta
 
+from numpy.random import beta
+from typing import List
+
+from .bernoulli_agent import BernoulliAgent
 
 class TSBernoulli(BernoulliAgent):
 
-    def __init__(self, id:str, n_arms: int):
-        super().__init__(id, n_arms)
+    def __init__(self, id:str, actions: List[str]):
+        super().__init__(id, actions)
  
-    def select_action(self, state:int) -> int:
-        samples = [beta(a=self._betas[a][0], b=self._betas[a][1])
-                   for a in range(self._n_arms)]
-        return np.argmax(samples)
+    def select_action(self, state:int) -> str:
+        samples = {a:beta(a=self._betas[a][0], b=self._betas[a][1])
+                   for a in self._actions}
+        return max(samples, key=samples.get)

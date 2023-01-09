@@ -1,22 +1,26 @@
 from abc import ABC, abstractmethod
+from typing import List
 
 
 class Environment(ABC):
 
-    _n_arms: int
-    _best_action: int
+    _actions: List[str]
+    _best_action: str
 
-    def __init__(self, n_arms: int):
-        self._n_arms = n_arms
+    def __init__(self, actions: List[str]):
+        self._actions = actions
     
-    def get_n_arms(self):
-        return self._n_arms
+    def __repr__(self) -> str:
+        return type(self).__name__
 
-    def get_best_action(self, state:int):
+    def get_actions(self) -> List[str]:
+        return self._actions
+
+    def get_best_action(self, state:int) -> str:
         return self._best_action
 
     @abstractmethod
-    def do_action(self, action: int):
+    def do_action(self, action: str):
         pass
 
     @abstractmethod

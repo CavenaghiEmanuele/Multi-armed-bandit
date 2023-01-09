@@ -1,18 +1,19 @@
-from random import randint
+from random import choice
+from typing import List
 
 from .agent import Agent
 
 
 class RandomAgent(Agent):
 
-    def __init__(self, id:str, n_arms: int):
-        super().__init__(id=id, n_arms=n_arms)
+    def __init__(self, id:str, actions: List[str]):
+        super().__init__(id, actions)
 
     def reset_agent(self):
         return
 
-    def update_estimates(self, state:int, action: int, reward: int) -> None:
+    def update_estimates(self, state:int, action: str, reward: int) -> None:
         return
 
-    def select_action(self, state:int) -> int:
-        return randint(0, self._n_arms-1) 
+    def select_action(self, state:int) -> str:
+        return choice(self._actions)
