@@ -15,28 +15,29 @@ class Session():
     _agents: List[Agent]
 
     def __init__(self, env: Environment, agents: List[Agent]):
-        oracle = Oracle(env=env)
         self._env = env
         self._agents = agents
-        self._agents.append(oracle)
-        
-    def _runner(self, env, agent, steps, experiment) -> None:
+
+    def _runner(self, env, agents, steps, experiment) -> None:
+        oracle = Oracle(env)
+        agents.append(oracle)
+
         results=[]
         for step in trange(steps):
             state = env.get_state()
-            action = agent.select_action(state)
-            reward = env.do_action(action)
-            agent.update_estimates(state, action, reward)
-            
-            # statistics
-            results.append({'agent': agent, 'experiment': experiment, 'step':step, 'reward':reward})
+            for agent in agents:
+                action = agent.select_action(state)
+                reward = env.do_action(action)
+                agent.update_estimates(state, action, reward)
+                 # statistics
+                results.append({'agent': agent, 'experiment': experiment, 'step':step, 'reward':reward})
+            env.next_state()
         return pd.DataFrame(results)
 
     def run(self, steps: int, experiments:int=1):
 
         params = [
-            (deepcopy(self._env), agent, steps, experiment) 
-            for agent in self._agents 
+            (deepcopy(self._env), self._agents, steps, experiment) 
             for experiment in range(experiments)
             ]
 

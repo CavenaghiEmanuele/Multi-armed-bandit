@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from functools import total_ordering
-from typing import List
+from typing import List, Dict
 
 
 @total_ordering
@@ -9,9 +9,10 @@ class Agent(ABC):
     _actions: List[str]
     _id: str
 
-    def __init__(self, id:str, actions: List[str]):
+    def __init__(self, id:str, actions: List[str], states:Dict=None):
         self._id = type(self).__name__ + str(id)
         self._actions = actions
+        self._states = states
     
     def __repr__(self):
         return self._id

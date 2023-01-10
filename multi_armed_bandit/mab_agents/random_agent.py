@@ -1,5 +1,5 @@
 from random import choice
-from typing import List
+from typing import List, Dict
 
 from .agent import Agent
 

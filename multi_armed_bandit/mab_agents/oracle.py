@@ -21,4 +21,4 @@ class Oracle(Agent):
         pass
 
     def select_action(self, state:int) -> str:
-        return self._env.get_best_action(state)
+        return self._env.get_best_action()
