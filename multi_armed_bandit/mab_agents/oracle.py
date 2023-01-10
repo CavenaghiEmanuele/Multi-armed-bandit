@@ -20,5 +20,5 @@ class Oracle(Agent):
     def update_estimates(self, state:int, action: str, reward: int) -> None:
         pass
 
-    def select_action(self, state:int) -> str:
+    def select_action(self, state:int, available_actions:List[str]) -> str:
         return self._env.get_best_action()

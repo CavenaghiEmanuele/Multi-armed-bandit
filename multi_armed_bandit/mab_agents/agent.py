@@ -38,5 +38,5 @@ class Agent(ABC):
         pass
 
     @abstractmethod
-    def select_action(self, state:int) -> int:
+    def select_action(self, state:int, available_actions:List[str]) -> int:
         pass

@@ -15,5 +15,5 @@ class RandomAgent(Agent):
     def update_estimates(self, state:int, action: str, reward: int) -> None:
         return
 
-    def select_action(self, state:int) -> str:
-        return choice(self._actions)
+    def select_action(self, state:int, available_actions:List[str]) -> str:
+        return choice(available_actions)

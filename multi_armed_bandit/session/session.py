@@ -25,8 +25,10 @@ class Session():
         results=[]
         for step in trange(steps):
             state = env.get_state()
+            available_actions = env.get_available_actions()
+            
             for agent in agents:
-                action = agent.select_action(state)
+                action = agent.select_action(state, available_actions)
                 reward = env.do_action(action)
                 agent.update_estimates(state, action, reward)
                  # statistics
