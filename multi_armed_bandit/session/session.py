@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from ..environments import Environment
 from ..mab_agents import Agent, Oracle
+from ..utils import from_dict_to_str
 
 
 class Session():
@@ -32,7 +33,14 @@ class Session():
                 reward = env.do_action(action)
                 agent.update_estimates(state, action, reward)
                  # statistics
-                results.append({'agent': agent, 'experiment': experiment, 'step':step, 'reward':reward})
+                results.append({
+                    'agent': repr(agent), 
+                    'experiment': experiment, 
+                    'step':step, 
+                    'state':from_dict_to_str(state), 
+                    'action':action, 
+                    'reward':reward
+                    })
             env.next_state()
         return pd.DataFrame(results)
 
