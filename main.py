@@ -15,4 +15,4 @@ if __name__ == '__main__':
 
     results = session.run(steps=1000, experiments=30)
     
-    mab.plot_cumulative_reward(results)
+    mab.plot_cumulative_reward(results, errorbar=('ci', 99))
