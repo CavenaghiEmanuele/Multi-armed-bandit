@@ -17,7 +17,7 @@ def plot_performed_actions(data: pd.DataFrame):
 def plot_visited_states(data: pd.DataFrame):
     # plus 1 becouse cumcount starts from 0
     data['cum_state'] = data.groupby(['agent', 'experiment', 'state'])['state'].cumcount()+1
-    sns.relplot(data=data, x='step', y='cum_state', hue='state', row='agent', kind='line')
+    sns.relplot(data=data, x='step', y='cum_state', hue='state', kind='line')
     plt.show()
 
 def plot_cumulative_regret(data: pd.DataFrame):
