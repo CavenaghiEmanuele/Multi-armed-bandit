@@ -1,2 +1,2 @@
 from .environment import Environment
-from .bernoulli_envs.plain_bernoulli_env import PlainBernoulliEnvironment
+from .bernoulli_envs import *

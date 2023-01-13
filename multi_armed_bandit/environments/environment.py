@@ -40,9 +40,13 @@ class Environment(ABC):
             return values[self._state[dim]]
 
     @abstractmethod
-    def do_action(self, action: str):
+    def do_action(self, action: str) -> int:
         pass
 
     @abstractmethod
     def next_state(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_best_action(self) -> str:
         pass

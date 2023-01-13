@@ -1,0 +1,2 @@
+from .plain_bernoulli_env import PlainBernoulliEnvironment
+from .bayesian_bernoulli_env import BayesianBernoulliEnvironment
