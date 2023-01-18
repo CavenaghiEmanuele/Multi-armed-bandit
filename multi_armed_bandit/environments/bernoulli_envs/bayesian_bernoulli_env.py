@@ -1,9 +1,10 @@
-from pgmpy.models.BayesianNetwork import BayesianNetwork
-from pgmpy.factors.discrete.CPD import TabularCPD
-from numpy.random import binomial, choice
-from typing import Dict, List
 import networkx as nx
 import pylab as plt
+
+from pgmpy.models.BayesianNetwork import BayesianNetwork
+from pgmpy.factors.discrete.CPD import TabularCPD
+from numpy.random import binomial
+from typing import Dict, List
 
 from .. import Environment
 
