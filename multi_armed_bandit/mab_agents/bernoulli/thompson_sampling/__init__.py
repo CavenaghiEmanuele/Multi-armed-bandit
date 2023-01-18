@@ -1,1 +1,2 @@
 from .plain_ts_bernoulli import PlainTSBernoulli
+from .bayesian_ts_bernoulli import BayesianTSBernoulli
