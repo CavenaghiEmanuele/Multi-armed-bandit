@@ -3,10 +3,9 @@ import pandas as pd
 from multiprocessing import Pool, cpu_count
 from typing import List
 from tqdm import trange
-from copy import deepcopy
 
 from ..environments import Environment
-from ..mab_agents import Agent, Oracle, BayesianTSBernoulli
+from ..mab_agents import Agent, Oracle
 from ..utils import from_dict_to_str
 
 
@@ -47,7 +46,7 @@ class Session():
     def run(self, steps: int, experiments:int=1):
 
         params = [
-            (deepcopy(self._env), self._agents, steps, experiment) 
+            (self._env, self._agents, steps, experiment) 
             for experiment in range(experiments)
             ]
 
