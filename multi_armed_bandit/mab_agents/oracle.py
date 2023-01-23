@@ -14,9 +14,6 @@ class Oracle(Agent):
         self._env = env
         self.actions = env.get_actions()
     
-    def reset_agent(self):
-        pass
-    
     def update_estimates(self, state:int, action: str, reward: int) -> None:
         pass
 

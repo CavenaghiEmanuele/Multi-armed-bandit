@@ -8,10 +8,7 @@ class RandomAgent(Agent):
 
     def __init__(self, id:str, actions: List[str]):
         super().__init__(id, actions)
-
-    def reset_agent(self):
-        return
-
+ 
     def update_estimates(self, state:int, action: str, reward: int) -> None:
         return
 

@@ -12,9 +12,6 @@ class PlainTSBernoulli(Agent):
 
     def __init__(self, id:str, actions: List[str], states:Dict):
         super().__init__(id, actions, states)
-        self.reset_agent()
-
-    def reset_agent(self) -> None:
         self._parameters = { 
             from_dict_to_str(state) : {action: [1, 1] for action in self._actions}
             for state in [dict(zip(self._states.keys(),items)) for items in itertools.product(*self._states.values())]

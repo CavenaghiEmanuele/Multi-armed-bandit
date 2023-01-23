@@ -24,9 +24,6 @@ class BayesianTSBernoulli(Agent):
 
     def __init__(self, id:str, actions: List[str], states:Dict, bn:BayesianNetwork):
         super().__init__(id, actions, states)
-        self.reset_agent(bn)
-
-    def reset_agent(self, bn:BayesianNetwork) -> None:
         self._bn = deepcopy(bn)
         self._init_uniform_cpds()
         self._n_observations = 1

@@ -30,10 +30,6 @@ class Agent(ABC):
         return self._id
     
     @abstractmethod
-    def reset_agent(self):
-        pass
-    
-    @abstractmethod
     def update_estimates(self, state:int, action: str, reward: int) -> None:
         pass
 
