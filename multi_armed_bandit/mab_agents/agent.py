@@ -7,12 +7,13 @@ from typing import List, Dict
 class Agent(ABC):
 
     _actions: List[str]
+    _contexts: Dict
     _id: str
 
-    def __init__(self, id:str, actions: List[str], states:Dict=None):
+    def __init__(self, id:str, actions: List[str], contexts:Dict=None):
         self._id = type(self).__name__ + str(id)
         self._actions = actions
-        self._states = states
+        self._contexts = contexts
     
     def __repr__(self):
         return self._id
@@ -30,9 +31,9 @@ class Agent(ABC):
         return self._id
     
     @abstractmethod
-    def update_estimates(self, state:int, action: str, reward: int) -> None:
+    def update_estimates(self, context:int, action: str, reward: int) -> None:
         pass
 
     @abstractmethod
-    def select_action(self, state:int, available_actions:List[str]) -> int:
+    def select_action(self, context:int, available_actions:List[str]) -> int:
         pass

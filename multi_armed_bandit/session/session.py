@@ -24,23 +24,23 @@ class Session():
 
         results=[]
         for step in trange(steps):
-            state = env.get_state()
+            context = env.get_context()
             available_actions = env.get_available_actions()
             
             for agent in agents:
-                action = agent.select_action(state, available_actions)
+                action = agent.select_action(context, available_actions)
                 reward = env.do_action(action)
-                agent.update_estimates(state, action, reward)
+                agent.update_estimates(context, action, reward)
                 # statistics
                 results.append({
                     'agent': repr(agent), 
                     'experiment': experiment, 
                     'step':step, 
-                    'state':from_dict_to_str(state), 
+                    'context':from_dict_to_str(context), 
                     'action':action, 
                     'reward':reward
                     })
-            env.next_state()
+            env.next_context()
         return pd.DataFrame(results)
 
     def run(self, steps: int, experiments:int=1):

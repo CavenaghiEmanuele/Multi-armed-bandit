@@ -11,22 +11,22 @@ from .. import Environment
 
 class BayesianBernoulliEnvironment(Environment):
 
-    _state: Dict
+    _context: Dict
     _bn: BayesianNetwork
 
     def __init__(
         self, 
         actions: List[str], 
-        states: Dict, 
+        contexts: Dict, 
         available_actions: Dict = None, 
         bn: BayesianNetwork = None
         ):
 
-        super().__init__(actions, states, available_actions)
+        super().__init__(actions, contexts, available_actions)
         self._bn = bn
         if bn.get_cpds() == []:
             self._create_cpds()
-        self.next_state()
+        self.next_context()
 
     def do_action(self, action: str):
         if action not in self.get_available_actions():
@@ -34,17 +34,17 @@ class BayesianBernoulliEnvironment(Environment):
         return binomial(n=1, p=self._get_reward_probability(action))
 
     def get_best_action(self) -> str:
-        prob_current_state = {
+        context_probs = {
             action:self._get_reward_probability(action) 
             for action in self.get_available_actions()
             }
-        return max(prob_current_state, key=prob_current_state.get)
+        return max(context_probs, key=context_probs.get)
 
-    def next_state(self) -> None:
+    def next_context(self) -> None:
         tmp = self._bn.simulate(n_samples=1, show_progress=False).to_dict('list')
         del tmp['X']
         del tmp['Y']
-        self._state = {key:value[0] for key, value in tmp.items()}
+        self._context = {key:value[0] for key, value in tmp.items()}
 
 
     def plot_bn(self) -> None:
@@ -61,18 +61,18 @@ class BayesianBernoulliEnvironment(Environment):
 
 
     def _create_cpds(self) -> None:
-        variables = self._states|{'X':self._actions, 'Y':['0','1']}
-        for state in variables.keys():
+        variables = self._contexts|{'X':self._actions, 'Y':['0','1']}
+        for context in variables.keys():
             self._bn.add_cpds(TabularCPD.get_random(
-                variable=state,
-                evidence=list(self._bn.predecessors(state)), #parents of the node 
-                cardinality={state:len(variables[state]) for state in variables},
+                variable=context,
+                evidence=list(self._bn.predecessors(context)), #parents of the node 
+                cardinality={context:len(variables[context]) for context in variables},
                 state_names=variables
                 )
             )
 
     def _get_reward_probability(self, action) -> float:
         y_cpd = self._bn.get_cpds(node='Y')
-        bn_state = {var:self._state[var] for var in y_cpd.get_evidence() if var!='X'}
-        bn_state.update({'X':action, 'Y':1})
-        return y_cpd.get_value(**bn_state)
+        bn_context = {var:self._context[var] for var in y_cpd.get_evidence() if var!='X'}
+        bn_context.update({'X':action, 'Y':1})
+        return y_cpd.get_value(**bn_context)
