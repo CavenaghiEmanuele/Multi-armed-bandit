@@ -17,7 +17,7 @@ from ....utils import from_dict_to_str
 
 class BayesianTSBernoulli(Agent):
 
-    #_bn: BayesianNetwork
+    _bn: BayesianNetwork
     _inference_engine: VariableElimination
     _n_observations: int
     _obs_for_context: defaultdict
