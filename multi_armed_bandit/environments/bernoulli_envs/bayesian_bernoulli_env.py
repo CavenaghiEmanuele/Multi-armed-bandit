@@ -61,10 +61,7 @@ class BayesianBernoulliEnvironment(Environment):
 
 
     def _create_cpds(self) -> None:
-        variables = {}
-        variables.update(self._states)
-        variables.update({'X':self._actions, 'Y':['0','1']})
-
+        variables = self._states|{'X':self._actions, 'Y':['0','1']}
         for state in variables.keys():
             self._bn.add_cpds(TabularCPD.get_random(
                 variable=state,

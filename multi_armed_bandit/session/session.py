@@ -6,7 +6,7 @@ from tqdm import trange
 from copy import deepcopy
 
 from ..environments import Environment
-from ..mab_agents import Agent, Oracle
+from ..mab_agents import Agent, Oracle, BayesianTSBernoulli
 from ..utils import from_dict_to_str
 
 
@@ -32,7 +32,7 @@ class Session():
                 action = agent.select_action(state, available_actions)
                 reward = env.do_action(action)
                 agent.update_estimates(state, action, reward)
-                 # statistics
+                # statistics
                 results.append({
                     'agent': repr(agent), 
                     'experiment': experiment, 

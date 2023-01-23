@@ -22,21 +22,23 @@ def bayesian_bernoulli():
 
     actions = ['action' + str(i) for i in range(3)]
     available_actions = None
-    states = {'C':['C' + str(i) for i in range(2)], 'D':['D' + str(i) for i in range(2)]}
+    states = {'C':['C' + str(i) for i in range(2)], 'D':['D' + str(i) for i in range(3)]}
     bn = BayesianNetwork([('X', 'Y'), ('C', 'X'), ('C', 'Y'), ('D','C')])
 
-    env = mab.BayesianBernoulliEnvironment(actions, states, available_actions, bn)
     agents = [mab.RandomAgent(id=str(i), actions=actions) for i in range(1)]
     agents.append(mab.PlainTSBernoulli(id='0', actions=actions, states=states))
+    agents.append(mab.BayesianTSBernoulli(id='0', actions=actions, states=states, bn=bn))
+
+    env = mab.BayesianBernoulliEnvironment(actions, states, available_actions, bn)
     
     session = mab.Session(env, agents)
-    results = session.run(steps=1000, experiments=20)
+    results = session.run(steps=2000, experiments=10)
 
     env.print_cpds()
 
-    #mab.plot_cumulative_reward(results)
-    #mab.plot_performed_actions(results)
-    mab.plot_visited_states(results)
+    mab.plot_cumulative_reward(results)
+    mab.plot_performed_actions(results)
+    #mab.plot_visited_states(results)
     #env.plot_bn()
     
 
