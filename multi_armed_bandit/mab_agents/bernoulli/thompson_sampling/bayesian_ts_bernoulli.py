@@ -1,6 +1,9 @@
+import itertools
+import random
 import numpy as np
 import networkx as nx
 import pylab as plt
+import pandas as pd
 
 from typing import List, Dict
 from collections import defaultdict
@@ -12,7 +15,7 @@ from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.inference import VariableElimination
 
 from ...agent import Agent
-from ....utils import from_dict_to_str
+from ....utils import from_dict_to_str, from_pd_series_to_str
 
 
 class BayesianTSBernoulli(Agent):
@@ -21,9 +24,25 @@ class BayesianTSBernoulli(Agent):
     _inference_engine: VariableElimination
     _n_observations: int
     _obs_for_context: defaultdict
+    _by_feature: bool
+    _actions_features: pd.DataFrame
 
+    '''
+    actions: List or Pandas DataFrame. List of actions or DataFrame where each row is an action 
+    and columns are the values of the associated features
+    '''
     def __init__(self, id:str, actions: List[str], contexts:Dict, bn:BayesianNetwork):
         super().__init__(id, actions, contexts)
+        if isinstance(actions, List):
+            self._by_feature = False
+        if isinstance(actions, pd.DataFrame):
+            self._by_feature = True
+            self._actions_features = actions
+            acts_feats_domain = {col:actions[col].unique() for col in actions}
+            self._actions = [
+                from_dict_to_str(action)
+                for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
+            ]
         self._bn = deepcopy(bn)
         self._init_uniform_cpds()
         self._n_observations = 1
@@ -31,6 +50,8 @@ class BayesianTSBernoulli(Agent):
         self._inference_engine = VariableElimination(self._bn)
 
     def update_estimates(self, context:int, action: str, reward: int) -> None:
+        if self._by_feature == True:
+            action = from_pd_series_to_str(self._actions_features.loc[action])
         self._bn.fit_update(DataFrame([context|{'X':action, 'Y':reward}]), n_prev_samples=self._n_observations)
         self._n_observations += 1
         self._obs_for_context[from_dict_to_str(context|{'X': action})] += 1
@@ -38,11 +59,14 @@ class BayesianTSBernoulli(Agent):
     def select_action(self, context:int, available_actions:List[str]) -> str:
         samples = {}
         for a in available_actions:
-            prob = self._inference_engine.query(variables=['Y'], evidence=context|{'X':a}).get_value(Y=1)
-            obs = self._obs_for_context[from_dict_to_str(context|{'X': a})] + 1
+            if self._by_feature == True:
+                a_features = from_pd_series_to_str(self._actions_features.loc[a])
+            else:
+                a_features = a
+            prob = self._inference_engine.query(variables=['Y'], evidence=context|{'X':a_features}).get_value(Y=1)
+            obs = self._obs_for_context[from_dict_to_str(context|{'X': a_features})] + 1
             samples.update({a:beta(a=prob*obs, b=(1-prob)*obs)})
-        return max(samples, key=samples.get)
-
+        return random.choice([k for (k, v) in samples.items() if v == max(samples.values())])
 
     def plot_bn(self) -> None:
         pos = nx.circular_layout(self._bn)

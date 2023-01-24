@@ -1,5 +1,7 @@
 import networkx as nx
 import pylab as plt
+import pandas as pd
+import itertools
 
 from pgmpy.models.BayesianNetwork import BayesianNetwork
 from pgmpy.factors.discrete.CPD import TabularCPD
@@ -7,6 +9,7 @@ from numpy.random import binomial
 from typing import Dict, List
 
 from .. import Environment
+from ...utils import from_dict_to_str
 
 
 class BayesianBernoulliEnvironment(Environment):
@@ -14,6 +17,10 @@ class BayesianBernoulliEnvironment(Environment):
     _context: Dict
     _bn: BayesianNetwork
 
+    '''
+    actions: List or Pandas DataFrame. List of actions or DataFrame where each row is an action 
+    and columns are the values of the associated features
+    '''
     def __init__(
         self, 
         actions: List[str], 
@@ -23,6 +30,15 @@ class BayesianBernoulliEnvironment(Environment):
         ):
 
         super().__init__(actions, contexts, available_actions)
+        if isinstance(actions, List):
+            self._by_feature = False
+        if isinstance(actions, pd.DataFrame):
+            self._by_feature = True
+            acts_feats_domain = {col:actions[col].unique() for col in actions}
+            self._actions = [
+                from_dict_to_str(action)
+                for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
+            ]
         self._bn = bn
         if bn.get_cpds() == []:
             self._create_cpds()
