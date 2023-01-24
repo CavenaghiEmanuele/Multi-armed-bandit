@@ -36,4 +36,5 @@ class CausalTSBernoulli(BayesianTSBernoulli):
                 ).get_value(Y=1)
             obs = self._obs_for_context[from_dict_to_str(context|{'X': a_features})] + 1
             samples.update({a:beta(a=prob*obs, b=(1-prob)*obs)})
+        # randomly brake ties
         return random.choice([k for (k, v) in samples.items() if v == max(samples.values())])
