@@ -6,7 +6,7 @@ from tqdm import trange
 
 from ..environments import Environment
 from ..mab_agents import Agent, Oracle
-from ..utils import from_dict_to_str
+from ..utils import from_dict_to_json
 
 
 class Session():
@@ -36,7 +36,7 @@ class Session():
                     'agent': repr(agent), 
                     'experiment': experiment, 
                     'step':step, 
-                    'context':from_dict_to_str(context), 
+                    'context':from_dict_to_json(context), 
                     'action':action, 
                     'reward':reward
                     })

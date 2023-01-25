@@ -15,7 +15,7 @@ from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.inference import VariableElimination
 
 from ...agent import Agent
-from ....utils import from_dict_to_str, from_pd_series_to_str
+from ....utils import from_dict_to_json, from_pd_series_to_json
 
 
 class BayesianTSBernoulli(Agent):
@@ -40,7 +40,7 @@ class BayesianTSBernoulli(Agent):
             self._actions_features = actions
             acts_feats_domain = {col:actions[col].unique() for col in actions}
             self._actions = [
-                from_dict_to_str(action)
+                from_dict_to_json(action)
                 for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
             ]
         self._bn = deepcopy(bn)
@@ -50,21 +50,30 @@ class BayesianTSBernoulli(Agent):
         self._inference_engine = VariableElimination(self._bn)
 
     def update_estimates(self, context:int, action: str, reward: int) -> None:
-        if self._by_feature == True:
-            action = from_pd_series_to_str(self._actions_features.loc[action])
-        self._bn.fit_update(DataFrame([context|{'X':action, 'Y':reward}]), n_prev_samples=self._n_observations)
+        # If there are nodes to represent actions'features the actions are represented by their features
+        if self._by_feature:
+            context = context|self._actions_features.loc[action].to_dict()
+            action = from_pd_series_to_json(self._actions_features.loc[action])
+        
+        # Update bn
+        self._bn.fit_update(
+            DataFrame([context|{'X':action, 'Y':reward}]), 
+            n_prev_samples=self._n_observations
+            )
+        # Update number of observations
         self._n_observations += 1
-        self._obs_for_context[from_dict_to_str(context|{'X': action})] += 1
+        # Add number of observations for each context-action pair
+        self._obs_for_context[from_dict_to_json(context|{'X': action})] += 1
  
     def select_action(self, context:int, available_actions:List[str]) -> str:
         samples = {}
         for a in available_actions:
-            if self._by_feature == True:
-                a_features = from_pd_series_to_str(self._actions_features.loc[a])
+            if self._by_feature:
+                a_features = from_pd_series_to_json(self._actions_features.loc[a])
             else:
                 a_features = a
             prob = self._inference_engine.query(variables=['Y'], evidence=context|{'X':a_features}).get_value(Y=1)
-            obs = self._obs_for_context[from_dict_to_str(context|{'X': a_features})] + 1
+            obs = self._obs_for_context[from_dict_to_json(context|{'X': a_features})] + 1
             samples.update({a:beta(a=prob*obs, b=(1-prob)*obs)})
         # randomly brake ties
         return random.choice([k for (k, v) in samples.items() if v == max(samples.values())])
@@ -84,6 +93,8 @@ class BayesianTSBernoulli(Agent):
 
     def _init_uniform_cpds(self):
         variables = self._contexts|{'X':self._actions, 'Y':[0,1]}
+        if self._by_feature:
+            variables = variables|{col:list(self._actions_features[col].unique()) for col in self._actions_features}
 
         for context in variables.keys():
             parents = list(self._bn.predecessors(context))

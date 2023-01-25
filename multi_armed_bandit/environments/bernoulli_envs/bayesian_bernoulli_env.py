@@ -1,7 +1,6 @@
 import networkx as nx
 import pylab as plt
 import pandas as pd
-import itertools
 
 from pgmpy.models.BayesianNetwork import BayesianNetwork
 from pgmpy.factors.discrete.CPD import TabularCPD
@@ -9,13 +8,13 @@ from numpy.random import binomial
 from typing import Dict, List
 
 from .. import Environment
-from ...utils import from_dict_to_str
 
 
 class BayesianBernoulliEnvironment(Environment):
 
     _context: Dict
     _bn: BayesianNetwork
+    _actions_features: pd.DataFrame
 
     '''
     actions: List or Pandas DataFrame. List of actions or DataFrame where each row is an action 
@@ -34,11 +33,8 @@ class BayesianBernoulliEnvironment(Environment):
             self._by_feature = False
         if isinstance(actions, pd.DataFrame):
             self._by_feature = True
-            acts_feats_domain = {col:actions[col].unique() for col in actions}
-            self._actions = [
-                from_dict_to_str(action)
-                for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
-            ]
+            self._actions_features = actions
+            self._actions = list(actions.index.values)
         self._bn = bn
         if bn.get_cpds() == []:
             self._create_cpds()
@@ -58,8 +54,13 @@ class BayesianBernoulliEnvironment(Environment):
 
     def next_context(self) -> None:
         tmp = self._bn.simulate(n_samples=1, show_progress=False).to_dict('list')
+        # Remove action and outcome as not part of the context
         del tmp['X']
         del tmp['Y']
+        # Remove the actions features as not part of the context
+        if self._by_feature:
+            for act_feature in self._actions_features.columns:
+                del tmp[act_feature]
         self._context = {key:value[0] for key, value in tmp.items()}
 
 
@@ -78,6 +79,10 @@ class BayesianBernoulliEnvironment(Environment):
 
     def _create_cpds(self) -> None:
         variables = self._contexts|{'X':self._actions, 'Y':['0','1']}
+        # If there are nodes to represent actions'features add their cpds
+        if self._by_feature:
+            variables = variables|{col:list(self._actions_features[col].unique()) for col in self._actions_features}
+        # For each node add a random cpd
         for context in variables.keys():
             self._bn.add_cpds(TabularCPD.get_random(
                 variable=context,
@@ -89,6 +94,10 @@ class BayesianBernoulliEnvironment(Environment):
 
     def _get_reward_probability(self, action) -> float:
         y_cpd = self._bn.get_cpds(node='Y')
-        bn_context = {var:self._context[var] for var in y_cpd.get_evidence() if var!='X'}
-        bn_context.update({'X':action, 'Y':1})
+        extended_context = self._context|{'X':action}
+        # If there are nodes to represent actions'features add them to the extended context
+        if self._by_feature:
+            extended_context = extended_context|self._actions_features.loc[action].to_dict()
+        # Extract only the parents of the Y node 
+        bn_context = {var:extended_context[var] for var in y_cpd.get_evidence()}|{'Y':1}
         return y_cpd.get_value(**bn_context)
