@@ -6,7 +6,7 @@ import numpy as np
 
 from pgmpy.models.BayesianNetwork import BayesianNetwork
 from pgmpy.factors.discrete.CPD import TabularCPD
-from numpy.random import binomial
+from numpy.random import binomial, uniform
 from typing import Dict, List
 from copy import deepcopy
 
@@ -30,7 +30,9 @@ class BayesianBernoulliEnvironment(Environment):
         actions: List[str], 
         contexts: Dict, 
         available_actions: Dict = None, 
-        bn: BayesianNetwork = None
+        bn: BayesianNetwork = None,
+        min_reward:float=0, 
+        max_reward:float=1
         ):
 
         super().__init__(actions, contexts, available_actions)
@@ -42,7 +44,7 @@ class BayesianBernoulliEnvironment(Environment):
             self._actions = list(actions.index.values)
         self._bn = deepcopy(bn)
         if bn.get_cpds() == []:
-            self._create_cpds()
+            self._create_cpds(min_reward, max_reward)
         self.next_context()
 
     def do_action(self, action: str):
@@ -96,7 +98,9 @@ class BayesianBernoulliEnvironment(Environment):
             acts_feats_domain = {col:self._actions_features[col].unique() for col in self._actions_features}
             # Generate the probabilities (for every context) for every combination of the actions' features
             actions_by_features = {
-                from_dict_to_json(action):np.random.rand(np.product([len(variables[parent]) for parent in parents if parent != 'X']))
+                from_dict_to_json(action):uniform(
+                    low=min_reward, high=max_reward,
+                    size=np.product([len(variables[parent]) for parent in parents if parent != 'X']))
                 for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
             }
             # Extend the probabilities for each single action

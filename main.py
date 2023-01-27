@@ -64,7 +64,7 @@ def bayesian_bernoulli_by_feature():
                        columns=['Feature1', 'Feature2'])
     
     available_actions = None #{'C': {'C0':['action0','action1','action2'], 'C1':['action3','action4']}}
-    contexts = {'C':['C' + str(i) for i in range(10)]}
+    contexts = {'C':['C' + str(i) for i in range(5)]}
     
     ##########################
     # Define environment
@@ -75,7 +75,9 @@ def bayesian_bernoulli_by_feature():
             ('C', 'X'), ('C', 'Y'), 
         ]
     )
-    env = mab.BayesianBernoulliEnvironment(actions, contexts, available_actions, bn)
+    env = mab.BayesianBernoulliEnvironment(
+        actions, contexts, available_actions, 
+        bn, min_reward=0, max_reward=0.1)
 
     ##########################
     # Define agents
@@ -113,7 +115,7 @@ def bayesian_bernoulli_by_feature():
     ##########################
     # Run
     ##########################
-    results = session.run(steps=10000, experiments=8)
+    results = session.run(steps=1000, experiments=8)
 
     ##########################
     # Results
