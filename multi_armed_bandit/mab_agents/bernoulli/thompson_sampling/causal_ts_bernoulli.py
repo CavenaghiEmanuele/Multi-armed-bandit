@@ -1,4 +1,5 @@
 import random
+
 from typing import List, Dict
 from numpy.random import beta
 from pgmpy.models.BayesianNetwork import BayesianNetwork

@@ -5,7 +5,7 @@ from typing import List
 from tqdm import trange
 
 from ..environments import Environment
-from ..mab_agents import Agent, Oracle, CausalTSBernoulli, BayesianTSBernoulli, PlainTSBernoulli
+from ..mab_agents import Agent, Oracle
 from ..utils import from_dict_to_json
 
 

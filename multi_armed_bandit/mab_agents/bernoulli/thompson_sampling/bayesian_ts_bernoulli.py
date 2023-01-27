@@ -1,4 +1,3 @@
-import itertools
 import random
 import numpy as np
 import networkx as nx
@@ -15,7 +14,7 @@ from pgmpy.factors.discrete.CPD import TabularCPD
 from pgmpy.inference import VariableElimination
 
 from ...agent import Agent
-from ....utils import from_dict_to_json, from_pd_series_to_json
+from ....utils import from_dict_to_json
 
 
 class BayesianTSBernoulli(Agent):
