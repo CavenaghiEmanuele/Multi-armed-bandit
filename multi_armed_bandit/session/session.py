@@ -5,7 +5,7 @@ from typing import List
 from tqdm import trange
 
 from ..environments import Environment
-from ..mab_agents import Agent, Oracle
+from ..mab_agents import Agent, Oracle, CausalTSBernoulli, BayesianTSBernoulli, PlainTSBernoulli
 from ..utils import from_dict_to_json
 
 
@@ -44,15 +44,12 @@ class Session():
         return pd.DataFrame(results)
 
     def run(self, steps: int, experiments:int=1):
-
         params = [
             (self._env, self._agents, steps, experiment) 
             for experiment in range(experiments)
             ]
-
         pool = Pool(cpu_count())
         data = pool.starmap(self._runner, params)
         pool.close()
         pool.join()
-
         return pd.concat(data, ignore_index=True) 

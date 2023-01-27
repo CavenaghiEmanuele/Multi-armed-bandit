@@ -25,55 +25,61 @@ class BayesianTSBernoulli(Agent):
     _n_observations: int
     _obs_for_context: defaultdict
     _by_feature: bool
-    _actions_features: pd.DataFrame
+    _stored_obs: pd.DataFrame
+    _update_delay: int
 
     '''
     actions: List or Pandas DataFrame. List of actions or DataFrame where each row is an action 
     and columns are the values of the associated features
     '''
-    def __init__(self, id:str, actions: List[str], contexts:Dict, bn:BayesianNetwork):
+    def __init__(self, id:str, actions: List[str], contexts:Dict, bn:BayesianNetwork, update_delay:int=1):
         super().__init__(id, actions, contexts)
         if isinstance(actions, List):
             self._by_feature = False
         if isinstance(actions, pd.DataFrame):
             self._by_feature = True
-            self._actions_features = actions
-            acts_feats_domain = {col:actions[col].unique() for col in actions}
-            self._actions = [
-                from_dict_to_json(action)
-                for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
-            ]
+
         self._bn = deepcopy(bn)
         self._init_uniform_cpds()
         self._n_observations = 1
         self._obs_for_context = defaultdict(int)
         self._inference_engine = VariableElimination(self._bn)
+        self._stored_obs = DataFrame()
+        self._update_delay = update_delay
 
     def update_estimates(self, context:int, action: str, reward: int) -> None:
         # If there are nodes to represent actions'features the actions are represented by their features
         if self._by_feature:
-            context = context|self._actions_features.loc[action].to_dict()
-            action = from_pd_series_to_json(self._actions_features.loc[action])
-        
-        # Update bn
-        self._bn.fit_update(
-            DataFrame([context|{'X':action, 'Y':reward}]), 
-            n_prev_samples=self._n_observations
-            )
+            extended_context = context|self._actions.loc[action].to_dict()
+        else:
+            extended_context = context|{'X':action}
+
         # Update number of observations
         self._n_observations += 1
         # Add number of observations for each context-action pair
-        self._obs_for_context[from_dict_to_json(context|{'X': action})] += 1
+        self._obs_for_context[from_dict_to_json(extended_context)] += 1
+        # Extend context with reward and make the dataframe to update estimates
+        extended_context = extended_context|{'Y':reward}
+        self._stored_obs = pd.concat([self._stored_obs, DataFrame([extended_context])], ignore_index=True)        
+    
+        # Update estimates if we collected enought observations
+        if len(self._stored_obs.index) >= self._update_delay:
+            # Update bn
+            self._bn.fit_update(
+                self._stored_obs, 
+                n_prev_samples=self._n_observations-self._update_delay
+                )
+            self._stored_obs = DataFrame()
  
     def select_action(self, context:int, available_actions:List[str]) -> str:
         samples = {}
         for a in available_actions:
             if self._by_feature:
-                a_features = from_pd_series_to_json(self._actions_features.loc[a])
+                extended_context = context|self._actions.loc[a].to_dict()
             else:
-                a_features = a
-            prob = self._inference_engine.query(variables=['Y'], evidence=context|{'X':a_features}).get_value(Y=1)
-            obs = self._obs_for_context[from_dict_to_json(context|{'X': a_features})] + 1
+                extended_context = context|a
+            prob = self._inference_engine.query(variables=['Y'], evidence=extended_context).get_value(Y=1)
+            obs = self._obs_for_context[from_dict_to_json(extended_context)] + 1
             samples.update({a:beta(a=prob*obs, b=(1-prob)*obs)})
         # randomly brake ties
         return random.choice([k for (k, v) in samples.items() if v == max(samples.values())])
@@ -92,29 +98,31 @@ class BayesianTSBernoulli(Agent):
 
 
     def _init_uniform_cpds(self):
-        variables = self._contexts|{'X':self._actions, 'Y':[0,1]}
+        variables = self._contexts|{'Y':[0,1]}
         if self._by_feature:
-            variables = variables|{col:list(self._actions_features[col].unique()) for col in self._actions_features}
-
-        for context in variables.keys():
-            parents = list(self._bn.predecessors(context))
+            variables = variables|{col:list(self._actions[col].unique()) for col in self._actions}
+        else:
+            variables = variables|{'X':self._actions}
+            
+        for node in variables.keys():
+            parents = list(self._bn.predecessors(node))
 
             if len(parents) == 0:
-                values = np.ones((len(variables[context]), 1))
+                values = np.ones((len(variables[node]), 1))
                 values = values / np.sum(values, axis=0)
                 self._bn.add_cpds(TabularCPD(
-                    variable=context,
-                    variable_card=len(variables[context]),
+                    variable=node,
+                    variable_card=len(variables[node]),
                     values=values,
                     state_names=variables,
                 ))
             else:
-                values = np.ones((len(variables[context]), np.product([len(variables[parent]) for parent in parents])))
+                values = np.ones((len(variables[node]), np.product([len(variables[parent]) for parent in parents])))
                 values = values / np.sum(values, axis=0)
 
                 self._bn.add_cpds(TabularCPD(
-                    variable=context,
-                    variable_card=len(variables[context]),
+                    variable=node,
+                    variable_card=len(variables[node]),
                     values=values,
                     evidence=parents,
                     evidence_card=[len(variables[parent]) for parent in parents],

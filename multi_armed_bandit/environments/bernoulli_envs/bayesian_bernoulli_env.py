@@ -1,13 +1,17 @@
+import itertools
 import networkx as nx
 import pylab as plt
 import pandas as pd
+import numpy as np
 
 from pgmpy.models.BayesianNetwork import BayesianNetwork
 from pgmpy.factors.discrete.CPD import TabularCPD
 from numpy.random import binomial
 from typing import Dict, List
+from copy import deepcopy
 
 from .. import Environment
+from ...utils import from_dict_to_json, from_pd_series_to_json
 
 
 class BayesianBernoulliEnvironment(Environment):
@@ -15,6 +19,7 @@ class BayesianBernoulliEnvironment(Environment):
     _context: Dict
     _bn: BayesianNetwork
     _actions_features: pd.DataFrame
+    _by_feature: bool
 
     '''
     actions: List or Pandas DataFrame. List of actions or DataFrame where each row is an action 
@@ -35,7 +40,7 @@ class BayesianBernoulliEnvironment(Environment):
             self._by_feature = True
             self._actions_features = actions
             self._actions = list(actions.index.values)
-        self._bn = bn
+        self._bn = deepcopy(bn)
         if bn.get_cpds() == []:
             self._create_cpds()
         self.next_context()
@@ -55,12 +60,7 @@ class BayesianBernoulliEnvironment(Environment):
     def next_context(self) -> None:
         tmp = self._bn.simulate(n_samples=1, show_progress=False).to_dict('list')
         # Remove action and outcome as not part of the context
-        del tmp['X']
-        del tmp['Y']
-        # Remove the actions features as not part of the context
-        if self._by_feature:
-            for act_feature in self._actions_features.columns:
-                del tmp[act_feature]
+        del tmp['X'], tmp['Y']
         self._context = {key:value[0] for key, value in tmp.items()}
 
 
@@ -77,20 +77,46 @@ class BayesianBernoulliEnvironment(Environment):
             print(cpd)
 
 
-    def _create_cpds(self) -> None:
+    def _create_cpds(self, min_reward:float=0, max_reward:float=1) -> None:
         variables = self._contexts|{'X':self._actions, 'Y':['0','1']}
-        # If there are nodes to represent actions'features add their cpds
-        if self._by_feature:
-            variables = variables|{col:list(self._actions_features[col].unique()) for col in self._actions_features}
         # For each node add a random cpd
-        for context in variables.keys():
+        for node in variables.keys():
             self._bn.add_cpds(TabularCPD.get_random(
-                variable=context,
-                evidence=list(self._bn.predecessors(context)), #parents of the node 
-                cardinality={context:len(variables[context]) for context in variables},
+                variable=node,
+                evidence=list(self._bn.predecessors(node)), #parents of the node 
+                cardinality={node:len(variables[node]) for node in variables},
                 state_names=variables
                 )
             )
+
+        # If the actions are described by features we have to generate the cpds for node Y
+        # in a way that the reward is a combination of the actions'features as described by the bn
+        if self._by_feature:
+            parents = list(self._bn.predecessors('Y'))
+            acts_feats_domain = {col:self._actions_features[col].unique() for col in self._actions_features}
+            # Generate the probabilities (for every context) for every combination of the actions' features
+            actions_by_features = {
+                from_dict_to_json(action):np.random.rand(np.product([len(variables[parent]) for parent in parents if parent != 'X']))
+                for action in [dict(zip(acts_feats_domain.keys(),items)) for items in itertools.product(*acts_feats_domain.values())]
+            }
+            # Extend the probabilities for each single action
+            values = [
+                list(actions_by_features[from_pd_series_to_json(self._actions_features.loc[action])])
+                for action in self._actions
+            ]
+            # Flattening the list of lists
+            values = np.array([item for sublist in values for item in sublist])
+            # Create a 2-dim np.array by adding the 1-p probabilities
+            values = np.array([values, np.ones(np.product([len(variables[parent]) for parent in parents])) - values])
+            # Create the cpd
+            self._bn.add_cpds(TabularCPD(
+                variable='Y',
+                variable_card=len(['0', '1']),
+                values=values,
+                evidence=parents,
+                evidence_card=[len(variables[parent]) for parent in parents],
+                state_names=variables
+            ))
 
     def _get_reward_probability(self, action) -> float:
         y_cpd = self._bn.get_cpds(node='Y')

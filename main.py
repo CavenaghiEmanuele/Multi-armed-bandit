@@ -24,28 +24,24 @@ def bayesian_bernoulli():
 
     actions = ['action' + str(i) for i in range(2)]
     available_actions = None #{'C': {'C0':['action0','action1','action2'], 'C1':['action3','action4']}}
-    contexts = {'C':['C' + str(i) for i in range(2)]}
+    contexts = {'C':['C' + str(i) for i in range(1)]}
     bn = BayesianNetwork([('X', 'Y'), ('C', 'X'), ('C', 'Y')])
 
-    #random = mab.RandomAgent(id='0', actions=actions)
-    #plain = mab.PlainTSBernoulli(id='0', actions=actions, contexts=contexts)
+    random = mab.RandomAgent(id='0', actions=actions)
+    plain = mab.PlainTSBernoulli(id='0', actions=actions, contexts=contexts)
     bayesian = mab.BayesianTSBernoulli(id='0', actions=actions, contexts=contexts, bn=bn)
-    #causal = mab.CausalTSBernoulli(id='0', actions=actions, contexts=contexts, bn=bn)
+    causal = mab.CausalTSBernoulli(id='0', actions=actions, contexts=contexts, bn=bn)
 
     env = mab.BayesianBernoulliEnvironment(actions, contexts, available_actions, bn)
-    
-    session = mab.Session(env, [bayesian]) #[random, plain, bayesian, causal])
-    results = session.run(steps=1000, experiments=1)
 
-    print('#################################', 'ENV', '#################################')
-    env.print_cpds()
+    session = mab.Session(env, [random, plain, bayesian, causal])
+    results = session.run(steps=10000, experiments=8)
 
 
     #mab.plot_cumulative_reward(results)
     #mab.plot_performed_actions(results)
     #mab.plot_visited_contexts(results)
     #env.plot_bn()
-    
 
     return
 
@@ -56,44 +52,75 @@ def bayesian_bernoulli_by_feature():
         'action1':['0','0'],
         'action2':['0','1'],
         'action3':['1','0'],
-        'action4':['1','1'],       
+        'action4':['1','1'],
+        'action5':['1','0'],
+        'action6':['2','1'],
+        'action7':['1','0'],
+        'action8':['0','1'],
+        'action9':['2','0'],
+        'action10':['1','0'],
     }
     actions = pd.DataFrame.from_dict(actions, orient='index',
                        columns=['Feature1', 'Feature2'])
     
-    
     available_actions = None #{'C': {'C0':['action0','action1','action2'], 'C1':['action3','action4']}}
-    contexts = {'C':['C' + str(i) for i in range(2)], 'D':['D' + str(i) for i in range(2)] }
+    contexts = {'C':['C' + str(i) for i in range(10)]}
+    
+    ##########################
+    # Define environment
+    ##########################
     bn = BayesianNetwork(
         [
             ('X', 'Y'), 
             ('C', 'X'), ('C', 'Y'), 
-            ('D', 'C'),
-            ('Feature1', 'X'), ('Feature1', 'Y'),
-            ('Feature2', 'X'), ('Feature2', 'Y'),
         ]
     )
-
     env = mab.BayesianBernoulliEnvironment(actions, contexts, available_actions, bn)
 
+    ##########################
+    # Define agents
+    ##########################
+    bn = BayesianNetwork(
+        [
+            ('Feature1', 'Y'), ('Feature2', 'Y'),
+            ('C', 'Feature1'), ('C', 'Feature2'), ('C', 'Y'), 
+        ]
+    )
+    
     random = mab.RandomAgent(id='0', actions=list(actions.index))
     plain = mab.PlainTSBernoulli(id='0', actions=list(actions.index), contexts=contexts)
-    bayesian = mab.BayesianTSBernoulli(id='0', actions=actions, contexts=contexts, bn=bn)
-    causal = mab.CausalTSBernoulli(id='0', actions=actions, contexts=contexts, bn=bn)
+    bayesian = mab.BayesianTSBernoulli(
+        id='0', 
+        actions=actions, 
+        contexts=contexts, 
+        bn=bn,
+        update_delay=100
+        )
 
-    env = mab.BayesianBernoulliEnvironment(actions, contexts, available_actions, bn)
+    causal = mab.CausalTSBernoulli(
+        id='0', 
+        actions=actions, 
+        contexts=contexts, 
+        bn=bn,
+        update_delay=100
+        )
 
+    ##########################
+    # Define session
+    ##########################
     session = mab.Session(env, [random, plain, bayesian, causal])
-    results = session.run(steps=2000, experiments=1)
 
-    print('#################################', 'ENV', '#################################')
-    env.print_cpds()
+    ##########################
+    # Run
+    ##########################
+    results = session.run(steps=10000, experiments=8)
 
-
+    ##########################
+    # Results
+    ##########################
     mab.plot_cumulative_reward(results)
     #mab.plot_performed_actions(results)
     #mab.plot_visited_contexts(results)
-    #env.plot_bn()
 
     return
 
@@ -101,5 +128,5 @@ def bayesian_bernoulli_by_feature():
 if __name__ == '__main__':
 
     #plain_bernoulli()
-    bayesian_bernoulli()
-    #bayesian_bernoulli_by_feature()
+    #bayesian_bernoulli()
+    bayesian_bernoulli_by_feature()
