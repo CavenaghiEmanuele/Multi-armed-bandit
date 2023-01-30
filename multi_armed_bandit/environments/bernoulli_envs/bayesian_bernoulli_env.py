@@ -126,8 +126,10 @@ class BayesianBernoulliEnvironment(Environment):
         y_cpd = self._bn.get_cpds(node='Y')
         extended_context = self._context|{'X':action}
         # If there are nodes to represent actions'features add them to the extended context
+        '''
+        # The environment doesn't have the actions features as nodes in the bn
         if self._by_feature:
-            extended_context = extended_context|self._actions_features.loc[action].to_dict()
+            extended_context = extended_context|self._actions_features.loc[action].to_dict()'''
         # Extract only the parents of the Y node 
         bn_context = {var:extended_context[var] for var in y_cpd.get_evidence()}|{'Y':1}
         return y_cpd.get_value(**bn_context)
